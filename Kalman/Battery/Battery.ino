@@ -23,7 +23,9 @@
 
 #define LM35_PIN 0
 
-#include "tinyEKF.h"
+#include "TinyEKF.h"
+#include "Wire.h"
+#include "FlexCAN.h"
 
 class Battery : public TinyEKF {
 
@@ -61,7 +63,9 @@ class Battery : public TinyEKF {
 			
 };
 
+Battery ekf[70];
 //ekf[0]-ekf[34] are voltages for cells 1-35, ekf[35]-ekf[69] are temperatures for cells 1-35
+
 
 
 
