@@ -22,11 +22,12 @@
 #include "tiny_ekf_struct.h"
 
 // Support both Arduino and command-line versions
+
 #ifndef MAIN
 extern "C" {
 #endif
-    void ekf_init(void *, int, int);
-    int ekf_step(void *, double *);
+     void ekf_init(void *, int, int);
+     int ekf_step(void *, double *);
 #ifndef MAIN
 }
 #endif

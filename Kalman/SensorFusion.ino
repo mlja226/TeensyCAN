@@ -18,13 +18,15 @@
 
 
 // These must be defined before including TinyEKF.h
-#define Nsta 40     // Two state values: pressure, temperature
-#define Mobs 40    // Three measurements: baro pressure, baro temperature, LM35 temperature
+#define Nsta 2     // Two state values: pressure, temperature
+#define Mobs 3     // Three measurements: baro pressure, baro temperature, LM35 temperature
 
 #define LM35_PIN 0
 
-#include "TinyEKF.h"
-#include "Wire.h"
+#include <TinyEKF.h>
+#include <SFE_BMP180.h>
+#include <Wire.h>
+
 class Fuser : public TinyEKF {
 
     public:
@@ -66,6 +68,65 @@ class Fuser : public TinyEKF {
 };
 
 Fuser ekf;
-int main(){
-	
+SFE_BMP180 baro;
+
+void setup() {
+
+    Serial.begin(9600);
+
+    // Start reading from baro
+    baro.begin();
+
+    // Set up to read from LM35
+    analogReference(INTERNAL);
+}
+
+
+void loop() {
+
+    // Read pressure, temperature from BMP180
+    double baroTemperature, baroPressure;
+    getBaroReadings(baroTemperature, baroPressure);
+
+    // Read temperature from LM35
+    float lm35Temperature = analogRead(LM35_PIN) / 9.31;
+
+    // Send these measurements to the EKF
+    double z[3] = {baroPressure, baroTemperature, lm35Temperature};
+    ekf.step(z);
+
+    // Report measured and predicte/fused values
+    Serial.print(z[0]);
+    Serial.print(" ");
+    Serial.print(z[1]);
+    Serial.print(" ");
+    Serial.print(z[2]);
+    Serial.print(" ");
+    Serial.print(ekf.getX(0));
+    Serial.print(" ");
+    Serial.println(ekf.getX(1));
+}
+
+
+// Adapted from https://github.com/sparkfun/BMP180_Breakout
+void getBaroReadings(double & T, double & P)
+{
+    char status = baro.startTemperature();
+   
+    if (status != 0) {
+        delay(status);
+        status = baro.getTemperature(T);
+        if (status != 0) {
+            status = baro.startPressure(3);
+            if (status != 0) {
+                delay(status);
+                status = baro.getPressure(P,T);
+                if (status == 0)
+                    Serial.println("error retrieving pressure measurement");
+            }
+            else Serial.println("error starting pressure measurement");
+        }
+        else Serial.println("error retrieving temperature measurement");
+    }
+    else Serial.println("error starting temperature measurement");
 }
