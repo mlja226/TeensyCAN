@@ -90,11 +90,9 @@ int CANMessage::storeUnsignedInt(uint64_t num, uint8_t start, uint8_t end){
   if(bitLen > 64 || bitLen >= 0 || start >= 512 || end > 512){
     return 0;
   }
-  uint8_t startByte = start / 64;
-  uint8_t startBit = start % (startByte * 64);
+  uint8_t currentBytePosition = start / 64;
+  uint8_t currentBitPosition = start % (currentBytePosition * 64);
 
-  uint8_t currentBytePosition = startByte;
-  uint8_t currentBitPosition = startBit;
   uint8_t currentBit;
   uint8_t desiredBit;
   int i = 0;
@@ -106,7 +104,7 @@ int CANMessage::storeUnsignedInt(uint64_t num, uint8_t start, uint8_t end){
     //If the currentBit and desiredBit are different, flip the bit.
     //Otherwise, nothing needs to change at this position.
     if(currentBit != desiredBit){
-      this->message[currentBytePosition] ^= 1<< i;
+      this->message[currentBytePosition] ^= 1<< currentBitPosition;
     }
 
     currentBitPosition++;
@@ -119,9 +117,52 @@ int CANMessage::storeUnsignedInt(uint64_t num, uint8_t start, uint8_t end){
   }
   return 1;
 }
-/*TODO: Implement storeSignedInt method.
-int CANMessage::storeSignedInt(int64_t num, uint8_t start, uint8_t end);
-*/
+// storeSignedInt: stores a 2's complement interpretation of the bits stored from
+// start to end. In order to accomodate the sign bit, the end position must be one more
+//than normal
+
+int CANMessage::storeSignedInt(int64_t num, uint8_t start, uint8_t end){
+  int8_t bitLen = end - start +1;
+  if(bitLen > 64 || bitLen >= 0 || start >= 512 || end > 512){
+    return 0;
+  }
+  uint8_t currentBytePosition = start / 64;
+  uint8_t currentBitPosition = start % (currentBytePosition * 64);
+
+  uint8_t currentBit;
+  uint8_t desiredBit;
+
+    int i = 0;
+    while(i < bitLen){
+      //Get desired bit value for this position from num
+      desiredBit = num &(0x1<<i);
+      //Get the bit value at current position of message.
+      currentBit = this->message[currentBytePosition] & (0x1<<currentBitPosition);
+      //If the currentBit and desiredBit are different, flip the bit.
+      //Otherwise, nothing needs to change at this position.
+      if(currentBit != desiredBit){
+        this->message[currentBytePosition] ^= 1<< currentBitPosition;
+      }
+      currentBitPosition++;
+      //If we are finished with this byte in the message array, move to the next one.
+      if(currentBitPosition >= 64){
+        currentBitPosition = 0;
+        currentBytePosition++;
+      }
+      i++;
+    }
+    //Set the sign bit appropriately
+    currentBit = this->message[currentBytePosition] & (0x1<<currentBitPosition);
+    if(num >= 0 ){
+      //Clear sign bit
+      this->message[currentBytePosition] &= ~(1<< currentBitPosition);
+    }
+    else{
+      //Set sign bit
+      this->message[currentBytePosition] |= 1<< currentBitPosition;
+    }
+
+}
 
 int CANMessage::storeBool(bool val ,uint8_t position){
   //Figure out which index(byte) in message the desired bit resides.
