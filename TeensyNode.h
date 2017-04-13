@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <FlexCAN.h>
 #include <kinetis_flexcan.h>
+#include "CANMessage.h"
 
 
 class TeensyNode {
@@ -14,12 +15,21 @@ public:
   TeensyNode(uint32_t baudrate){
     this->CANBus = FlexCAN(baudrate);
   }
-  int read(CAN_message_t &message){
-    return this->CANBus.read(message);
+  int read(CANMessage &message){
+    CAN_message_t msg;
+    int result = this->CANBus.read(msg);
+    message.translateFromFlexCAN(msg);
+    return result;
   }
-  int write(CAN_message_t message){
-    return this->CANBus.write(message);
+  int write(CANMessage message){
+    CAN_message_t msg;
+    message.translateToFlexCAN(msg);
+    int result = this->CANBus.write(msg);
+    return result;
   }
+
+  
+
 };
 
 #endif
