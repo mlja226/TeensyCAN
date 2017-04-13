@@ -36,7 +36,6 @@
 #include <math.h>
 
 #include "tinyekf_config.h"
-#include "tiny_ekf.h"
 
 // positioning interval
 static const double T = 1;
@@ -130,44 +129,6 @@ static void model(ekf_t * ekf, double SV[4][3])
     }   
 }
 
-static void readline(char * line, FILE * fp)
-{
-    fgets(line, 1000, fp);
-}
-
-static void readdata(FILE * fp, double SV_Pos[4][3], double SV_Rho[4])
-{
-    char line[1000];
-
-    readline(line, fp);
-
-    char * p = strtok(line, ",");
-
-    int i, j;
-
-    for (i=0; i<4; ++i)
-        for (j=0; j<3; ++j) {
-            SV_Pos[i][j] = atof(p);
-            p = strtok(NULL, ",");
-        }
-
-    for (j=0; j<4; ++j) {
-        SV_Rho[j] = atof(p);
-        p = strtok(NULL, ",");
-    }
-}
-
-
-static void skipline(FILE * fp)
-{
-    char line[1000];
-    readline(line, fp);
-}
-
-void error(const char * msg)
-{
-    fprintf(stderr, "%s\n", msg);
-}
 
 int main(int argc, char ** argv)
 {    
@@ -179,7 +140,7 @@ int main(int argc, char ** argv)
     init(&ekf);
 
     // Open input data file
-    FILE * ifp = fopen("test.csv", "r");
+    FILE * ifp = fopen("gps.csv", "r");
 
     // Skip CSV header
     skipline(ifp);
