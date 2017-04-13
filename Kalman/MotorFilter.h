@@ -18,8 +18,8 @@
 
 
 // These must be defined before including TinyEKF.h
-#define Nsta 1  // Two state values: pressure, temperature
-#define Mobs 1 // Three measurements: baro pressure, baro temperature, LM35 temperature1
+#define Nsta 5  
+#define Mobs 5 
 
 #include "TinyEKF.h"
 
@@ -27,16 +27,16 @@ class BatteryFilter : public TinyEKF {
 
     public:
 
-        BatteryFilter()
+        MotorFilter()
         {            
             // We approximate the process noise using a small constant
             for (int i=0;i<Nsta;i++){
-              this->setQ(i, i, .01);
+              this->setQ(i, i, .0001);
             }
 
             // Same for measurement noise
             for (int i=0;i<Mobs;i++){
-              this->setR(i, i, .01);
+              this->setR(i, i, .0001);
             }
         }
 
