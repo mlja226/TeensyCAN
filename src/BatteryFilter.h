@@ -52,7 +52,7 @@ class BatteryFilter : public TinyEKF {
 
             // Measurement function update rules
 			for (int i=0;i<Mobs;i++){
-		     	hx[i] = this->x[i];  //Assume function is constant and Jacobian is identity
+		    	hx[i] = this->x[i];  //Assume function is constant and Jacobian is identity
 				H[i][i] = 1;
 			}
         }
