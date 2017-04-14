@@ -1,7 +1,13 @@
 #include <FlexCAN.h>
 #include <Arduino.h>
 #include "CANMessage.h"
-/*
+
+uint32_t CANMessage::getMessageID(){
+  return this->messageID;
+}
+void CANMessage::setMessageID(uint32_t id){
+  this->messageID = id;
+}/*
 CANMessage Constructor: Creates new CANMessage with given messageID and buffer
 buffer must be array of uint8_t of length 8 or information will be lost.
 */
@@ -161,7 +167,7 @@ int CANMessage::storeSignedInt(int64_t num, uint8_t start, uint8_t end){
       //Set sign bit
       this->message[currentBytePosition] |= 1<< currentBitPosition;
     }
-
+    return 1;
 }
 
 int CANMessage::storeBool(bool val ,uint8_t position){

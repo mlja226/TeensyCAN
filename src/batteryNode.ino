@@ -5,11 +5,14 @@
 #include "TeensyNode.h"
 #include "BatteryFilter.h"
 #include "batteryNode.h"
-#include <vector>
 #include "message_ids.h"
+
 //TODO
-int batteryNode::checkForError(vector<int> data, int messageID){}
-batteryNode::batteryNode(){
+uint32_t batteryNode::checkForError(int data[], uint32_t messageID){
+  return 0;
+}
+
+batteryNode::batteryNode() : TeensyNode(){
   for(int i =0; i < CURRENT_DATA_ROWS; i++){
     for(int j = 0; j < CURRENT_DATA_COLUMNS; j++){
       this->currentData[i][j] = 0;
@@ -17,61 +20,62 @@ batteryNode::batteryNode(){
     }
   }
 }
-void batteryNode::interpretData(int messageID){
-  int index errormsg;
-  vector<int> data;
+void batteryNode::interpretData(uint32_t messageID){
+  int index, errormsg, datalen = 8;
+  int data[datalen];
+  CANMessage CANmsg;
+
   if(messageID == BATTERY_BC_AC_BP_AP){
     for(int i =0; i<4; i++){
-      data.push_back() = currentFilter.getX(i);
+      data[i] = currentFilter.getX(i);
     }
-    errormsg = checkForError(, BATTERY_BC_AC_BP_AP);
-    CANMessage() CANmsg;
+    errormsg = checkForError(data, BATTERY_BC_AC_BP_AP);
     if(errormsg){
-      CANmsg->messageID = errormsg;
+      CANmsg.setMessageID(errormsg);
     }
     else{
-      CANmsg->messageID = messageID;
+      CANmsg.setMessageID(messageID);
     }
     //Pack the data
     int start=0,end=16;
-    for(int i = 0; i< data.size(); i++){
+    for(int i = 0; i< datalen; i++){
         CANmsg.storeSignedInt(int64_t(data[i]),start, end);
         start += 16;
         end += 16;
+    }
   }
   else{
-    if(id >=BATTERY_VOLTAGE_1 && id <= BATTERY_VOLTAGE_10){
-      index = id - BATTERY_VOLTAGE_1;
-      for(int i =0; i<4; i++){
-        data.push_back(this->cellFilters[index].getX(i));
-      }
-
+    //if it is a Voltage, set the correct index for the filter
+    if(messageID >=BATTERY_VOLTAGE_1 && messageID <= BATTERY_VOLTAGE_10){
+      index = messageID - BATTERY_VOLTAGE_1;
     }
-    else if(id >=BATTERY_TEMPERATURE_1 && id <= BATTERY_TEMPERATURE_10){
-      index = id - BATTERY_TEMPERATURE_1;
-      for(int i =0; i<4; i++){
-        data.push_back(this->cellFilters[index].getX(i));
-      }
-    }
-    errormsg = checkForError(data, messageID);
-    CANMessage() CANmsg;
-    if(errormsg){
-      CANmsg->messageID = errormsg;
+      //if it is a Temperature, set the correct index for the filter
+    else if(messageID >= BATTERY_TEMPERATURE_1 && messageID <= BATTERY_TEMPERATURE_10){
+      index = messageID - BATTERY_TEMPERATURE_1;
     }
     else{
-      CANmsg->messageID = messageID;
+      //if we get here, we were processing data with an id that does't belong to the batteryNode
+      return;
+    }
+    for(int i =0; i<4; i++){
+      data[i] = this->cellFilters[index].getX(i);
+    }
+    errormsg = checkForError(data, messageID);
+    if(errormsg){
+      CANmsg.setMessageID(errormsg);
+    }
+    else{
+      CANmsg.setMessageID(messageID);
     }
     //Pack the data
     int start=0,end=16;
-    for(int i = 0; i< data.size(); i++){
+    for(int i = 0; i< datalen; i++){
         CANmsg.storeSignedInt(int64_t(data[i]),start, end);
         start += 16;
         end += 16;
       }
     }
-  }
-  this->CANBus.write(CANmsg);
-
+  this->write(CANmsg);
 }
 
 void batteryNode::kalmanStep(int data[], int id, int arrLen){
@@ -97,8 +101,7 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
         currentData[index][i+4] = data[i];
       }
     }
-    this->cellFilter[index].step(currentData[index]);
-    this->cellFilter[index]
+    this->cellFilters[index].step(currentData[index]);
   }
 
 }

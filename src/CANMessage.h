@@ -12,6 +12,9 @@ public:
 	CANMessage();
 	CANMessage(uint32_t id, uint8_t buff[]);
 
+  uint32_t getMessageID();
+  void setMessageID(uint32_t id);
+
   void translateFromFlexCAN(CAN_message_t from);
   void translateToFlexCAN(CAN_message_t &from);
 
@@ -23,5 +26,6 @@ public:
 
   int storeBool(bool val ,uint8_t position);
   bool readBool(uint8_t position);
+
 };
 #endif

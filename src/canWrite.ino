@@ -27,13 +27,10 @@ void loop()
   myMessage.buf[6] = '0';
   myMessage.buf[7] = '0';
   myMessage.timeout = 0;
-  int start = millis();
+
 
   int ret = CANbus.write(myMessage);
-  int end = millis();
-  //Serial.println(end - start);
-  if(ret){
-    Serial.println(ret);
-  }
+  Serial.println(ret);
+
   delay(100);
 }

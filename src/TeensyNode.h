@@ -12,6 +12,9 @@ private:
   FlexCAN CANBus;
 
 public:
+  TeensyNode(){
+    this->CANBus = FlexCAN();
+  }
   TeensyNode(uint32_t baudrate){
     this->CANBus = FlexCAN(baudrate);
   }
@@ -28,7 +31,7 @@ public:
     return result;
   }
 
-  
+
 
 };
 
