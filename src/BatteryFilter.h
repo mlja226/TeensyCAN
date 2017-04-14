@@ -1,65 +1,64 @@
-/* SensorFusion: Sensor fusion on Arduino using TinyEKF.
- *
+/* BatteryFilter.h: Header file to implement the TinyEKF class specifically for the battery in the UK solar car
+ * Edited by: Jacob Miller, 4/12/2017
+ * Parent class requires implemention of constructor and model function
+ * Modified from SensorFusion.ino:Sensor fusion on Arduino using TinyEKF. 
  * Copyright (C) 2015 Simon D. Levy
- *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this code.  If not, see <http:#www.gnu.org/licenses/>.
  */
 
+
 #ifndef BATTERY_FILTER_H
-#define  BATTERY_FILTER_H
-// These must be defined before including TinyEKF.h
-#define Nsta 2  // Two state values: pressure, temperature
-#define Mobs 2 // Three measurements: baro pressure, baro temperature, LM35 temperature
+#define BATTERY_FILTER_H
 
-#define LM35_PIN 0
+#define Nsta 4  // Four values are being monitored by this EKF:battery current, array current, battery power, and array power
+#define Mobs 4 // There is only one measurement being used per value being monitored
 
-#include "tinyEKF.h"
+#include "TinyEKF.h"
 
 class BatteryFilter : public TinyEKF {
 
     public:
 
         BatteryFilter()
-        {
-            // We approximate the process noise using a small constant
+        {            
+            // We approximate the process noise using a small constant fro each value being checked, along the identity matrix
             for (int i=0;i<Nsta;i++){
-              this->setQ(i, i, .0001);
+              
+			  this->setQ(i, i, .0001);
             }
 
-            // Same for measurement noise
+            // We also approximated the measurement noise in a similar fashion
             for (int i=0;i<Mobs;i++){
-              this->setR(i, i, .0001);
+              
+			  this->setR(i, i, .0001);
             }
         }
 
     protected:
-
+		
+		/* 
+		Model method needs to be implemented
+		Purpose: give an idea of of how we expect our data to behave as well as our measurements, give the update rules for our values
+		Parameters: fx is our updated values after our function is applied and F is the corresponding jacobian
+		hx is the associated model for the measurement values and H is the measurement's Jacobian
+		*/ 
         void model(double fx[Nsta], double F[Nsta][Nsta], double hx[Mobs], double H[Mobs][Nsta])
         {
-        			for (int i=0;i<Nsta;i++){
-        				fx[i] = this-> x[i];
-        				F[i][i]=1;
-        			}
 
-                    // Measurement function
-        			for (int i=0;i<Mobs;i++){
-        	         	hx[i] = this->x[i];
-        				   H[i][i] = 1;
-        			}
+			for (int i=0;i<Nsta;i++){
+				
+				fx[i] = this-> x[i]; //function is assumed to be constant
+				F[i][i]=1; // Jacobian is the identity
+			}
+
+            // Measurement function update rules
+			for (int i=0;i<Mobs;i++){
+		     	hx[i] = this->x[i];  //Assume function is constant and Jacobian is identity
+				H[i][i] = 1;
+			}
         }
-
+			
 };
 
-//ekf[0]-ekf[34] are voltages for cells 1-35, ekf[35]-ekf[69] are temperatures for cells 1-35
 #endif
+
+
