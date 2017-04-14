@@ -8,8 +8,45 @@
 #include "message_ids.h"
 
 //TODO
-uint32_t batteryNode::checkForError(int data[], uint32_t messageID){
-  return 0;
+uint32_t batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
+
+  //BATTERY VOLTAGE ERROR CHECK
+  if(messageID >= BATTERY_VOLTAGE_1 && messageID <= BATTERY_VOLTAGE_10){
+    //iterate through data to check if there are any readings above/below cutoff
+    for(int i = 0; i < datalen; i++){
+      if(data[i] >= CUTOFF_VOLTAGE_HIGH ){
+        return CUTOFF_VOLTAGE_HIGH;
+      }
+      else if( data[i] <= CUTOFF_VOLTAGE_LOW){
+        return CUTOFF_VOLTAGE_LOW;
+
+      }
+    }
+  }
+  //BATTERY TEMPERATURE ERROR CHECK
+  else if(messageID >= BATTERY_TEMPERATURE_1 && messageID <= BATTERY_TEMPERATURE_10){
+    //iterate through data to check if there are any readings above/below cutoff
+    for(int i = 0; i < datalen; i++){
+      if(data[i] >= CUTOFF_TEMP_HIGH ){
+        return CUTOFF_TEMP_HIGH;
+      }
+    }
+  }
+  //BATTERY_BC_AC_BP_AP ERROR CHECK
+  //TODO: DETERMINE VALID RANGE FOR THESE VALUES
+  else if(messageID == BATTERY_BC_AC_BP_AP){
+
+  }
+  //BATTERY CBS ERROR CHECK
+  else if(messageID == BATTERY_CBS_1 || messageID == BATTERY_CBS_1){
+
+  }
+  //BATTERY ESR ERROR CHECK
+  else if(messageID >= BATTERY_ESR_1 && messageID <= BATTERY_ESR_5){
+
+  }
+
+  return messageID;
 }
 
 batteryNode::batteryNode() : TeensyNode(){
@@ -27,9 +64,9 @@ void batteryNode::interpretData(uint32_t messageID){
 
   if(messageID == BATTERY_BC_AC_BP_AP){
     for(int i =0; i<4; i++){
-      data[i] = currentFilter.getX(i);
+      data[i] = static_cast<int>(currentFilter.getX(i));
     }
-    errormsg = checkForError(data, BATTERY_BC_AC_BP_AP);
+    errormsg = checkForError(data, datalen, BATTERY_BC_AC_BP_AP);
     if(errormsg){
       CANmsg.setMessageID(errormsg);
     }
@@ -58,7 +95,7 @@ void batteryNode::interpretData(uint32_t messageID){
       return;
     }
     for(int i =0; i<4; i++){
-      data[i] = this->cellFilters[index].getX(i);
+      data[i] = static_cast<int>(this->cellFilters[index].getX(i));
     }
     errormsg = checkForError(data, messageID);
     if(errormsg){
@@ -80,9 +117,13 @@ void batteryNode::interpretData(uint32_t messageID){
 
 void batteryNode::kalmanStep(int data[], int id, int arrLen){
   int index;
+  double dataAsDoubles[arrLen];
 
   if(id == BATTERY_BC_AC_BP_AP){
-    this->currentFilter.step(data);
+    for(int i = 0; i< 4; i++){
+      dataAsDoubles[i] = static_cast<double>(data[i]);
+    }
+    this->currentFilter.step(dataAsDoubles);
   }
   else{
     if(id >=BATTERY_VOLTAGE_1 && id <= BATTERY_VOLTAGE_10){
@@ -90,6 +131,7 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
       //Record the voltage values in the first 4 indices of currentData[index]
       for(int i = 0; i< 4; i++){
         currentData[index][i] = data[i];
+        dataAsDoubles[i] = static_cast<double>(data[i]);
       }
 
     }
@@ -99,9 +141,11 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
       //Record the voltage values in the first 4 indices of currentData[index]
       for(int i =0; i< 4; i++){
         currentData[index][i+4] = data[i];
+        dataAsDoubles[i] = static_cast<double>(data[i]);
       }
     }
-    this->cellFilters[index].step(currentData[index]);
+
+    this->cellFilters[index].step(dataAsDoubles);
   }
 
 }

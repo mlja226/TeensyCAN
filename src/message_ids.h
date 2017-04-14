@@ -20,7 +20,38 @@
 #define  MESSAGES_H
 
 #include <stdint.h>
+//current reading period in multiples of .7989
+#define CURRENT_DELAY_MULTIPLIER 1
+#define BATTERY_INTERNAL_RESISTANCE_MILLIOHMS 5
+//CBS constants
+#define CBS_CUTOFF_OFFSET 2500
+// CBS interval = multiplier * .189787
+// 120 is roughly 33 seconds
+#define CBS_DELAY_MULTIPLIER 120
 
+//assume around 200mV voltage increase to compensate for CBS
+#define CBS_VOLTAGE_DROP 2000
+
+//battery voltage cutoff points (in Volts * 10000)
+#define	CUTOFF_VOLTAGE_HIGH	36490
+#define	CUTOFF_VOLTAGE_LOW	26510
+//#define	CUTOFF_VOLTAGE_LOW	0
+//#define	CUTOFF_VOLTAGE_HIGH	50000
+
+//battery current cutoff points (in milli-Amps)
+#define	CUTOFF_CURRENT_HIGH	 80000
+#define	CUTOFF_CURRENT_LOW	(-40000)
+
+//battery temperature cutoff point (in Celcius)
+#define CUTOFF_TEMP_HIGH	        45
+#define CUTOFF_TEMP_HIGH_DISCHARGE	60
+
+//array cutoff point (in Volts * 10000)
+#define ARRAY_CUTON		        34500
+#define ARRAY_CUTOFF	        35500
+#define ARRAY_CUTON_CURRENT		 3000
+#define ARRAY_CUTOFF_CURRENT	 1000
+#define ARRAY_CUTOFF_TEMP	       43
 /**
  * Driver Display
  * 0x100 - 0x10F
