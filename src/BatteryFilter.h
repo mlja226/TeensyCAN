@@ -9,8 +9,8 @@
 #ifndef BATTERY_FILTER_H
 #define BATTERY_FILTER_H
 
-#define Nsta 4  // Four values are being monitored by this EKF:battery current, array current, battery power, and array power
-#define Mobs 4 // There is only one measurement being used per value being monitored
+#define Nsta 8  // Four values are being monitored by this EKF:battery current, array current, battery power, and array power
+#define Mobs 8 // There is only one measurement being used per value being monitored
 
 #include "TinyEKF.h"
 
@@ -21,13 +21,13 @@ class BatteryFilter : public TinyEKF {
         BatteryFilter()
         {            
             // We approximate the process noise using a small constant fro each value being checked, along the identity matrix
-            for (int i=0;i<Nsta;i++){
+            for (int i=0;i<4;i++){
               
 			  this->setQ(i, i, .0001);
             }
 
             // We also approximated the measurement noise in a similar fashion
-            for (int i=0;i<Mobs;i++){
+            for (int i=0;i<4;i++){
               
 			  this->setR(i, i, .0001);
             }
@@ -44,14 +44,14 @@ class BatteryFilter : public TinyEKF {
         void model(double fx[Nsta], double F[Nsta][Nsta], double hx[Mobs], double H[Mobs][Nsta])
         {
 
-			for (int i=0;i<Nsta;i++){
+			for (int i=0;i<4;i++){
 				
 				fx[i] = this-> x[i]; //function is assumed to be constant
 				F[i][i]=1; // Jacobian is the identity
 			}
 
             // Measurement function update rules
-			for (int i=0;i<Mobs;i++){
+			for (int i=0;i<4;i++){
 		    	hx[i] = this->x[i];  //Assume function is constant and Jacobian is identity
 				H[i][i] = 1;
 			}
