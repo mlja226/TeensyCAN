@@ -18,16 +18,16 @@
 
 
 
-#define Nsta 4  // Two state values: pressure, temperature
-#define Mobs 4 // Three measurements: baro pressure, baro temperature, LM35 temperature1
+#define Nsta 8  // Two state values: pressure, temperature
+#define Mobs 8 // Three measurements: baro pressure, baro temperature, LM35 temperature1
 
 #include "TinyEKF.h"
 
-class BatteryFilter : public TinyEKF {
+class BatteryCellFilter : public TinyEKF {
 
     public:
 
-        BatteryFilter()
+        BatteryCellFilter()
         {            
             // We approximate the process noise using a small constant
             for (int i=0;i<Nsta;i++){

@@ -23,7 +23,7 @@
 
 #include "TinyEKF.h"
 
-class BatteryFilter : public TinyEKF {
+class MotorFilter : public TinyEKF {
 
     public:
 

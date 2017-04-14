@@ -23,7 +23,7 @@
 
 #include "TinyEKF.h"
 
-class BatteryFilter : public TinyEKF {
+class ArrayFilter : public TinyEKF {
 
     public:
 
