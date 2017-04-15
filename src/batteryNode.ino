@@ -97,7 +97,7 @@ void batteryNode::interpretData(uint32_t messageID){
     for(int i =0; i<4; i++){
       data[i] = static_cast<int>(this->cellFilters[index].getX(i));
     }
-    errormsg = checkForError(data, messageID);
+    errormsg = checkForError(data,datalen, messageID);
     if(errormsg){
       CANmsg.setMessageID(errormsg);
     }
@@ -143,6 +143,10 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
         currentData[index][i+4] = data[i];
         dataAsDoubles[i] = static_cast<double>(data[i]);
       }
+    }
+    else{
+      //TODO: Decide what to do for other IDs 
+      index = 0;
     }
 
     this->cellFilters[index].step(dataAsDoubles);

@@ -1,4 +1,4 @@
-/* SensorFusion: Sensor fusion on Arduino using TinyEKF.  
+/* SensorFusion: Sensor fusion on Arduino using TinyEKF.
  *
  * Copyright (C) 2015 Simon D. Levy
  *
@@ -16,8 +16,8 @@
  * along with this code.  If not, see <http:#www.gnu.org/licenses/>.
  */
 
-
-
+#ifndef BATTERY_CELL_FILTER_H
+#define BATTERY_CELL_FILTER_H
 #define Nsta 8  // Two state values: pressure, temperature
 #define Mobs 8 // Three measurements: baro pressure, baro temperature, LM35 temperature1
 
@@ -28,7 +28,7 @@ class BatteryCellFilter : public TinyEKF {
     public:
 
         BatteryCellFilter()
-        {            
+        {
             // We approximate the process noise using a small constant
             for (int i=0;i<Nsta;i++){
               this->setQ(i, i, .0001);
@@ -48,15 +48,13 @@ class BatteryCellFilter : public TinyEKF {
         				fx[i] = this-> x[i]+1/2;
         				F[i][i]=1;
         			}
-        
+
                     // Measurement function
         			for (int i=0;i<Mobs;i++){
-        	         	hx[i] = this->x[i]; 
+        	         	hx[i] = this->x[i];
         				   H[i][i] = 1;
         			}
         }
-			
+
 };
-
-
-
+#endif

@@ -19,7 +19,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this code.  If not, see <http:#www.gnu.org/licenses/>.
  */
-
+#ifndef TINY_EKF_STRUCT_H
+#define TINY_EKF_STRUCT_H
 typedef struct {
 
     int n;          /* number of state values */
@@ -49,6 +50,8 @@ typedef struct {
     double tmp2[Mobs][Nsta];
     double tmp3[Mobs][Mobs];
     double tmp4[Mobs][Mobs];
-    double tmp5[Mobs]; 
+    double tmp5[Mobs];
 
-} ekf_t; 
+} ekf_t;
+
+#endif
