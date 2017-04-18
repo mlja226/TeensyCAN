@@ -67,18 +67,8 @@ void batteryNode::interpretData(uint32_t messageID){
       data[i] = static_cast<int>(currentFilter.getX(i));
     }
     errormsg = checkForError(data, datalen, BATTERY_BC_AC_BP_AP);
-    if(errormsg){
-      CANmsg.setMessageID(errormsg);
-    }
-    else{
-      CANmsg.setMessageID(messageID);
-    }
-    //Pack the data
-    int start=0,end=16;
-    for(int i = 0; i< datalen; i++){
-        CANmsg.storeSignedInt(int64_t(data[i]),start, end);
-        start += 16;
-        end += 16;
+    CANmsg.setMessageID(errormsg);
+   
     }
   }
   else{
@@ -98,21 +88,16 @@ void batteryNode::interpretData(uint32_t messageID){
       data[i] = static_cast<int>(this->cellFilters[index].getX(i));
     }
     errormsg = checkForError(data, messageID);
-    if(errormsg){
-      CANmsg.setMessageID(errormsg);
+    CANmsg.setMessageID(errormsg);
+    
     }
-    else{
-      CANmsg.setMessageID(messageID);
-    }
-    //Pack the data
     int start=0,end=16;
     for(int i = 0; i< datalen; i++){
         CANmsg.storeSignedInt(int64_t(data[i]),start, end);
         start += 16;
         end += 16;
-      }
-    }
-  this->write(CANmsg);
+	}
+	this->write(CANmsg);
 }
 
 void batteryNode::kalmanStep(int data[], int id, int arrLen){

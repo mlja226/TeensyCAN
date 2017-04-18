@@ -6,6 +6,7 @@
 #include <kinetis_flexcan.h>
 #include "CANMessage.h"
 
+#define MAX_ERRORS 10
 
 class TeensyNode {
 private:
