@@ -7,18 +7,36 @@
 #include "batteryNode.h"
 #include "message_ids.h"
 
+//sendMessage: Write message as soon as data is processed
+void batteryNode::sendMessage(uint32_t writeMessageID, int data[], int datalen){
+
+	CANMessage CANmsg;
+	CANmsg.setMessageID(writeMessageID);
+
+    int start=0,end=16;
+    for(int i = 0; i< datalen; i++){
+        CANmsg.storeSignedInt(int64_t(data[i]),start, end);
+        start += 16;
+        end += 16;
+	}
+	this->write(CANmsg);
+}
+
 //TODO
-uint32_t batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
+void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
 
   //BATTERY VOLTAGE ERROR CHECK
   if(messageID >= BATTERY_VOLTAGE_1 && messageID <= BATTERY_VOLTAGE_10){
     //iterate through data to check if there are any readings above/below cutoff
     for(int i = 0; i < datalen; i++){
       if(data[i] >= CUTOFF_VOLTAGE_HIGH ){
-        return CUTOFF_VOLTAGE_HIGH;
+		
+		  sendMessage(CUTOFF_VOLTAGE_HIGH,data, datalen);
+        //return CUTOFF_VOLTAGE_HIGH;
       }
       else if( data[i] <= CUTOFF_VOLTAGE_LOW){
-        return CUTOFF_VOLTAGE_LOW;
+		  sendMessage(CUTOFF_VOLTAGE_LOW,data, datalen);
+        //return CUTOFF_VOLTAGE_LOW;
 
       }
     }
@@ -28,7 +46,8 @@ uint32_t batteryNode::checkForError(int data[], int datalen, uint32_t messageID)
     //iterate through data to check if there are any readings above/below cutoff
     for(int i = 0; i < datalen; i++){
       if(data[i] >= CUTOFF_TEMP_HIGH ){
-        return CUTOFF_TEMP_HIGH;
+		sendMessage(CUTOFF_TEMP_HIGH,data, datalen);
+        //return CUTOFF_TEMP_HIGH;
       }
     }
   }
@@ -46,8 +65,9 @@ uint32_t batteryNode::checkForError(int data[], int datalen, uint32_t messageID)
 
   }
 
-  return messageID;
 }
+
+
 
 batteryNode::batteryNode() : TeensyNode(){
   for(int i =0; i < CURRENT_DATA_ROWS; i++){
@@ -60,16 +80,15 @@ batteryNode::batteryNode() : TeensyNode(){
 void batteryNode::interpretData(uint32_t messageID){
   int index, errormsg, datalen = 8;
   int data[datalen];
-  CANMessage CANmsg;
+  //CANMessage CANmsg;
 
   if(messageID == BATTERY_BC_AC_BP_AP){
     for(int i =0; i<4; i++){
       data[i] = static_cast<int>(currentFilter.getX(i));
     }
-    errormsg = checkForError(data, datalen, BATTERY_BC_AC_BP_AP);
-    CANmsg.setMessageID(errormsg);
-   
-    }
+    
+	checkForError(data, datalen, BATTERY_BC_AC_BP_AP);
+    //CANmsg.setMessageID(errormsg);
   }
   else{
     //if it is a Voltage, set the correct index for the filter
@@ -87,11 +106,13 @@ void batteryNode::interpretData(uint32_t messageID){
     for(int i =0; i<4; i++){
       data[i] = static_cast<int>(this->cellFilters[index].getX(i));
     }
-    errormsg = checkForError(data, messageID);
-    CANmsg.setMessageID(errormsg);
+	
+   	checkForError(data, datalen, messageID);
     
+	//CANmsg.setMessageID(errormsg);
 
     }
+	/*
     int start=0,end=16;
     for(int i = 0; i< datalen; i++){
         CANmsg.storeSignedInt(int64_t(data[i]),start, end);
@@ -99,6 +120,7 @@ void batteryNode::interpretData(uint32_t messageID){
         end += 16;
 	}
 	this->write(CANmsg);
+	*/
 }
 
 void batteryNode::kalmanStep(int data[], int id, int arrLen){
