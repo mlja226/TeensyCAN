@@ -12,7 +12,7 @@
 #define CURRENT_DATA_COLUMNS 8
 #define CELL_FILTERS_LEN 10
 
-class batteryNode : protected TeensyNode {
+class batteryNode : public TeensyNode {
 private:
 BatteryCellFilter cellFilters[CELL_FILTERS_LEN];
 BatteryFilter currentFilter;

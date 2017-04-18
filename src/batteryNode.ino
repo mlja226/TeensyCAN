@@ -161,3 +161,38 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
   }
 
 }
+
+CANMessage message;
+batteryNode thisNode;	
+void setup(){
+	
+
+	
+}
+
+void loop() {
+  bool state_change = false;
+  // If RX buffer is not empty
+  while (thisNode.read(message)==0){
+  }
+  
+  if (message.getMessageID()<0x400 && message.getMessageID()>=0x300 ){
+	    // Read valid input
+	    state_change = true;
+
+	    // Filter new data
+	    // TODO Kalman Filter black magic
+
+	    // Check filtered values for errors
+	    // TODO Chack against set break points
+	  }
+
+  if( state_change ){
+    // If changed compute state
+    // TODO Compute things like voltage over time, soc, ...
+
+    // Check computed state for errors
+    // TODO Check against set break points
+  }
+	
+}
