@@ -85,6 +85,8 @@
  * Array
  * 0x200 - 0x2FF
  */
+ #define ARRAY_MESSAGE_RANGE_LOW 0x200
+ #define ARRAY_MESSAGE_RANGE_HI 0x2FF
  #define ARRAY_SIDE_POWER_1 0x200 // ( Array Side Power 16bits x 4 )
  #define ARRAY_SIDE_POWER_2 0x201 // ...
 
@@ -103,6 +105,8 @@
  * Battery
  * 0x300 - 0x3FF
  */
+#define BATTERY_MESSAGE_RANGE_LOW 0x300
+#define BATTERY_MESSAGE_RANGE_HI 0x3FF
 #define BATTERY_VOLTAGE_1 0x300 // ( volt 1 - 16bits )( volt 2 - 16bits )( volt 3 - 16bits )( volt 4 - 16bits )
 #define BATTERY_VOLTAGE_2 0x301 // ( volt 5 - 16bits )( volt 6 - 16bits )( volt 7 - 16bits )( volt 8 - 16bits )
 #define BATTERY_VOLTAGE_3 0x302 // ...
@@ -151,6 +155,8 @@
  *
  * 0x400 - 0x4FF
  */
+ #define MOTOR_MESSAGE_RANGE_LOW 0x400
+ #define MOTOR_MESSAGE_RANGE_HI 0x4FF
 #define MOTOR_IDENTIFICATION_INFORMATION 0x400
 
 #define MOTOR_STATUS_INFORMATION 0x401
