@@ -8,13 +8,13 @@
 #include "TeensyNode.h"
 #include "BatteryFilter.h"
 #include "BatteryCellFilter.h"
-#define CURRENT_DATA_ROWS 10
-#define CURRENT_DATA_COLUMNS 8
-#define CELL_FILTERS_LEN 10
+#define CURRENT_DATA_ROWS 20
+#define CURRENT_DATA_COLUMNS 4
+#define CELL_FILTERS_LEN 20
 
 class batteryNode : public TeensyNode {
 private:
-BatteryCellFilter cellFilters[CELL_FILTERS_LEN];
+BatteryCellFilter cellFilters[CELL_FILTERS_LEN]; //First 10 are the temperatures for cells 1-40, second 10 are voltages
 BatteryFilter currentFilter;
 int currentData[CURRENT_DATA_ROWS][CURRENT_DATA_COLUMNS];
 

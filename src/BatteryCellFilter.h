@@ -18,8 +18,8 @@
 
 #ifndef BATTERY_CELL_FILTER_H
 #define BATTERY_CELL_FILTER_H
-#define Nsta 8  // Two state values: pressure, temperature
-#define Mobs 8 // Three measurements: baro pressure, baro temperature, LM35 temperature1
+#define Nsta 4  // Two state values: pressure, temperature
+#define Mobs 4 // Three measurements: baro pressure, baro temperature, LM35 temperature1
 
 #include "TinyEKF.h"
 
@@ -45,7 +45,7 @@ class BatteryCellFilter : public TinyEKF {
         void model(double fx[Nsta], double F[Nsta][Nsta], double hx[Mobs], double H[Mobs][Nsta])
         {
         			for (int i=0;i<Nsta;i++){
-        				fx[i] = this-> x[i]+1/2;
+        				fx[i] = this-> x[i];
         				F[i][i]=1;
         			}
 
