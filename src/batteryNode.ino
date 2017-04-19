@@ -167,12 +167,13 @@ void loop() {
   while (thisNode.read(message)==0){
   }
 
-  if (message.getMessageID()>=BATTERY_VOLTAGE_1 && message.getMessageID()>=0x300 ){
+  if (message.getMessageID()>=BATTERY_MESSAGE_WINDOW_LOW && message.getMessageID()<=BATTERY_MESSAGE_WINDOW_HIGH){
 	    // Read valid input
 	    state_change = true;
 
 	    // Filter new data
 	    // TODO Kalman Filter black magic
+		
 
 	    // Check filtered values for errors
 	    // TODO Chack against set break points
