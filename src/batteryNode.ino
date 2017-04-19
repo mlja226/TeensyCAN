@@ -30,7 +30,7 @@ void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
     //iterate through data to check if there are any readings above/below cutoff
     for(int i = 0; i < datalen; i++){
       if(data[i] >= CUTOFF_VOLTAGE_HIGH ){
-		
+
 		  sendMessage(CUTOFF_VOLTAGE_HIGH,data, datalen);
         //return CUTOFF_VOLTAGE_HIGH;
       }
@@ -78,7 +78,7 @@ batteryNode::batteryNode() : TeensyNode(){
   }
 }
 void batteryNode::interpretData(uint32_t messageID){
-  int index, errormsg, datalen = 8;
+  int index, datalen = 8;
   int data[datalen];
   //CANMessage CANmsg;
 
@@ -86,7 +86,7 @@ void batteryNode::interpretData(uint32_t messageID){
     for(int i =0; i<4; i++){
       data[i] = static_cast<int>(currentFilter.getX(i));
     }
-    
+
 	checkForError(data, datalen, BATTERY_BC_AC_BP_AP);
     //CANmsg.setMessageID(errormsg);
   }
@@ -106,21 +106,12 @@ void batteryNode::interpretData(uint32_t messageID){
     for(int i =0; i<4; i++){
       data[i] = static_cast<int>(this->cellFilters[index].getX(i));
     }
-	
+
    	checkForError(data, datalen, messageID);
-    
-	//CANmsg.setMessageID(errormsg);
+
 
     }
-	/*
-    int start=0,end=16;
-    for(int i = 0; i< datalen; i++){
-        CANmsg.storeSignedInt(int64_t(data[i]),start, end);
-        start += 16;
-        end += 16;
-	}
-	this->write(CANmsg);
-	*/
+
 }
 
 void batteryNode::kalmanStep(int data[], int id, int arrLen){
@@ -145,15 +136,15 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
     }
 
     else if(id >=BATTERY_TEMPERATURE_1 && id <= BATTERY_TEMPERATURE_10){
-      index = id - BATTERY_TEMPERATURE_1;
+      index = id - BATTERY_TEMPERATURE_1+10;
       //Record the voltage values in the first 4 indices of currentData[index]
       for(int i =0; i< 4; i++){
-        currentData[index][i+4] = data[i];
+        currentData[index][i] = data[i];
         dataAsDoubles[i] = static_cast<double>(data[i]);
       }
     }
     else{
-      //TODO: Decide what to do for other IDs 
+      //TODO: Decide what to do for other IDs
       index = 0;
     }
 
@@ -163,11 +154,11 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
 }
 
 CANMessage message;
-batteryNode thisNode;	
+batteryNode thisNode;
 void setup(){
-	
 
-	
+
+
 }
 
 void loop() {
@@ -175,8 +166,8 @@ void loop() {
   // If RX buffer is not empty
   while (thisNode.read(message)==0){
   }
-  
-  if (message.getMessageID()<0x400 && message.getMessageID()>=0x300 ){
+
+  if (message.getMessageID()>=BATTERY_VOLTAGE_1 && message.getMessageID()>=0x300 ){
 	    // Read valid input
 	    state_change = true;
 
@@ -194,5 +185,5 @@ void loop() {
     // Check computed state for errors
     // TODO Check against set break points
   }
-	
+
 }

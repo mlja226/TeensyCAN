@@ -7,7 +7,13 @@ uint32_t CANMessage::getMessageID(){
 }
 void CANMessage::setMessageID(uint32_t id){
   this->messageID = id;
-}/*
+ 
+}
+CANMessage::CANMessage(){
+	
+	
+}
+/*
 CANMessage Constructor: Creates new CANMessage with given messageID and buffer
 buffer must be array of uint8_t of length 8 or information will be lost.
 */
