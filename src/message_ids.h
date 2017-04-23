@@ -46,6 +46,8 @@
 #define CUTOFF_TEMP_HIGH	        45
 #define CUTOFF_TEMP_HIGH_DISCHARGE	60
 
+#define CUTOFF_SOC_LOW              10 //TODO Make sure this number works
+
 //array cutoff point (in Volts * 10000)
 #define ARRAY_CUTON		        34500
 #define ARRAY_CUTOFF	        35500
@@ -146,6 +148,7 @@
 #define BATTERY_ESR_4 0x31E
 #define BATTERY_ESR_5 0x31F
 
+#define BATTERY_SOC 0x320
 
 /**
  * Motor Controller

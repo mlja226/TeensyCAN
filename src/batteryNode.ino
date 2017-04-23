@@ -13,7 +13,7 @@ void batteryNode::sendMessage(uint32_t writeMessageID, int data[], int datalen){
 	CANMessage CANmsg;
 	CANmsg.setMessageID(writeMessageID);
 
-    int start=0,end=16;
+    int start=0,end=16; //Fill CAN Message data
     for(int i = 0; i< datalen; i++){
         CANmsg.storeSignedInt(int64_t(data[i]),start, end);
         start += 16;
@@ -63,6 +63,13 @@ void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
   //BATTERY ESR ERROR CHECK
   else if(messageID >= BATTERY_ESR_1 && messageID <= BATTERY_ESR_5){
 
+  }
+  //BATTERY State of Charge Check
+  else if (messageID==BATTERY_SOC){
+  	
+	  if (data[0]<CUTOFF_SOC_LOW){ //low state of charge
+		  sendMessage(CUTOFF_SOC_LOW, data, datalen);//Send error message
+	  }
   }
 
 }
@@ -153,6 +160,39 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
 
 }
 
+void batteryNode::updateStateCalculations(){
+	
+	
+	/*
+	
+	Calculate State Of Charge
+	
+	*/
+	
+	int sumOfCharge=0;
+	
+	//Go through kalman filters related to cell voltage and sum together all 
+	for (int i=10;i<20;i++){
+		
+		for (int j=0;j<4;j++){
+			sumOfCharge+=cellFilters[i].getX(j);
+			
+		}
+	}
+	this->stateOfCharge= 100*(sumOfCharge/(40*CUTOFF_VOLTAGE_HIGH)); //Charges divided by total amount possible
+	
+	int data[]= {this->stateOfCharge};
+	
+	checkForError(data, 1, BATTERY_SOC);
+	/*
+	
+	Calculate ESR
+	
+	*/
+	
+	
+}
+
 CANMessage message;
 batteryNode thisNode;
 void setup(){
@@ -167,23 +207,34 @@ void loop() {
   while (thisNode.read(message)==0){
   }
 
-  if (message.getMessageID()>=BATTERY_MESSAGE_WINDOW_LOW && message.getMessageID()<=BATTERY_MESSAGE_WINDOW_HIGH){
+  if (message.getMessageID()>=BATTERY_MESSAGE_RANGE_LOW && message.getMessageID()<=BATTERY_MESSAGE_RANGE_HI){
 	    // Read valid input
 	    state_change = true;
 
 	    // Filter new data
-	    // TODO Kalman Filter black magic
+		int data[4];
+		for (int i=0;i<4;i++){
+			
+			data[i]= message.readSignedInt(i*16,(i+1)*16);
+		}
 		
+	    //Kalman Filter black magic
+		thisNode.kalmanStep(data,message.getMessageID(),4);
 
 	    // Check filtered values for errors
+		thisNode.interpretData(message.getMessageID());
+		
 	    // TODO Chack against set break points
+		
 	  }
 
   if( state_change ){
     // If changed compute state
-    // TODO Compute things like voltage over time, soc, ...
-
+    
+	//  Compute things like voltage over time, soc, ...
     // Check computed state for errors
+	  thisNode.updateStateCalculations(); 
+
     // TODO Check against set break points
   }
 

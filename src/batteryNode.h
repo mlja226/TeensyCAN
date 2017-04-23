@@ -15,8 +15,15 @@
 class batteryNode : public TeensyNode {
 private:
 BatteryCellFilter cellFilters[CELL_FILTERS_LEN]; //First 10 are the temperatures for cells 1-40, second 10 are voltages
+
+//TODO Separate cellFilters for voltage vs temperature
+
 BatteryFilter currentFilter;
 int currentData[CURRENT_DATA_ROWS][CURRENT_DATA_COLUMNS];
+
+int stateOfCharge, batteryESR;
+
+
 
 public:
   batteryNode();
@@ -25,6 +32,8 @@ public:
   void kalmanStep(int data[], int id, int arrLen);
   void  checkForError(int data[], int datalen, uint32_t messageID);
   void sendMessage(uint32_t writeMessageID, int data[], int datalen);
+  
+  void updateStateCalculations();
 
 
 };

@@ -112,15 +112,6 @@ void motorNode::kalmanStep(int data[], uint32 id, int arrLen){
 			break;
 			
 		case MOTOR_PHASE_CURRENT_MEASUREMENT:
-		
-			break;
-			
-		case MOTOR_VOLTAGE_VECTOR_MEASUREMENT:
-			
-			break;
-			
-		case MOTOR_CURRENT_VECTOR_MEASUREMENT:
-		
 			break;
 			
 		case MOTOR_BACKEMF_MEASUREMENT_PREDICTION:
