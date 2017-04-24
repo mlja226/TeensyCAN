@@ -46,13 +46,13 @@ class BatteryFilter : public TinyEKF {
 
 			for (int i=0;i<4;i++){
 
-				fx[i] = this-> x[i]; //function is assumed to be constant
+				fx[i] = this-> x[i]; //TODO Make a proper function that is not simply constant
 				F[i][i]=1; // Jacobian is the identity
 			}
 
             // Measurement function update rules
 			for (int i=0;i<4;i++){
-		    	hx[i] = this->x[i];  //Assume function is constant and Jacobian is identity
+		    	hx[i] = this->x[i];  //Assume function is constant and Jacobian is identity TODO Make better function
 				H[i][i] = 1;
 			}
         }

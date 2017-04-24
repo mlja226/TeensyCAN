@@ -7,16 +7,17 @@
 #include "CANMessage.h"
 #include "TeensyNode.h"
 #include "BatteryFilter.h"
-#include "BatteryCellFilter.h"
+#include "VoltageCellFilter.h"
+#include "TemperatureCellFilter.h"
+
 #define CURRENT_DATA_ROWS 20
 #define CURRENT_DATA_COLUMNS 4
-#define CELL_FILTERS_LEN 20
+#define CELL_FILTERS_LEN 10
 
 class batteryNode : public TeensyNode {
 private:
-BatteryCellFilter cellFilters[CELL_FILTERS_LEN]; //First 10 are the temperatures for cells 1-40, second 10 are voltages
-
-//TODO Separate cellFilters for voltage vs temperature
+TemperatureCellFilter cellFiltersVoltage[CELL_FILTERS_LEN]; //First 10 are the temperatures for cells 1-40
+VoltageCellFilter cellFiltersTemperature[CELL_FILTERS_LEN];
 
 BatteryFilter currentFilter;
 int currentData[CURRENT_DATA_ROWS][CURRENT_DATA_COLUMNS];

@@ -74,8 +74,6 @@ void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
 
 }
 
-
-
 batteryNode::batteryNode() : TeensyNode(){
   for(int i =0; i < CURRENT_DATA_ROWS; i++){
     for(int j = 0; j < CURRENT_DATA_COLUMNS; j++){
@@ -101,18 +99,22 @@ void batteryNode::interpretData(uint32_t messageID){
     //if it is a Voltage, set the correct index for the filter
     if(messageID >=BATTERY_VOLTAGE_1 && messageID <= BATTERY_VOLTAGE_10){
       index = messageID - BATTERY_VOLTAGE_1;
+      for(int i =0; i<4; i++){
+        data[i] = static_cast<int>(this->cellFiltersVoltage[index].getX(i));
+      }
     }
       //if it is a Temperature, set the correct index for the filter
     else if(messageID >= BATTERY_TEMPERATURE_1 && messageID <= BATTERY_TEMPERATURE_10){
       index = messageID - BATTERY_TEMPERATURE_1;
+      for(int i =0; i<4; i++){
+        data[i] = static_cast<int>(this->cellFiltersTemperature[index].getX(i));
+      }
     }
     else{
       //if we get here, we were processing data with an id that does't belong to the batteryNode
       return;
     }
-    for(int i =0; i<4; i++){
-      data[i] = static_cast<int>(this->cellFilters[index].getX(i));
-    }
+
 
    	checkForError(data, datalen, messageID);
 
@@ -139,6 +141,7 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
         currentData[index][i] = data[i];
         dataAsDoubles[i] = static_cast<double>(data[i]);
       }
+      this->cellFiltersVoltage[index].step(dataAsDoubles);
 
     }
 
@@ -149,13 +152,14 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
         currentData[index][i] = data[i];
         dataAsDoubles[i] = static_cast<double>(data[i]);
       }
+      this->cellFiltersTemperature[index].step(dataAsDoubles);
+	  
     }
     else{
       //TODO: Decide what to do for other IDs
       index = 0;
     }
 
-    this->cellFilters[index].step(dataAsDoubles);
   }
 
 }
@@ -172,10 +176,11 @@ void batteryNode::updateStateCalculations(){
 	int sumOfCharge=0;
 	
 	//Go through kalman filters related to cell voltage and sum together all 
-	for (int i=10;i<20;i++){
+	for (int i=0;i<CELL_FILTERS_LEN;i++){
 		
 		for (int j=0;j<4;j++){
-			sumOfCharge+=cellFilters[i].getX(j);
+			
+			sumOfCharge+=cellFiltersVoltage[i].getX(j);
 			
 		}
 	}
