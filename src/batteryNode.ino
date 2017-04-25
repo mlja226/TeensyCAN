@@ -15,7 +15,7 @@ void batteryNode::sendMessage(uint32_t writeMessageID, int data[], int datalen){
 
     int start=0,end=16; //Fill CAN Message data
     for(int i = 0; i< datalen; i++){
-        CANmsg.storeSignedInt(int64_t(data[i]),start, end);
+        CANmsg.storeUnsignedInt(int64_t(data[i]),start, end);
         start += 16;
         end += 16;
 	}
