@@ -1,10 +1,8 @@
 #ifndef CAN_MESSAGE_H
 #define CAN_MESSAGE_H
 #include <stdlib.h>
-#include <iostream>
 #include <FlexCAN.h>
 #include <Arduino.h>
-using namespace std;
 class CANMessage{
 private:
   uint32_t messageID;

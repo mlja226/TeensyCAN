@@ -66,7 +66,7 @@ void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
   }
   //BATTERY State of Charge Check
   else if (messageID==BATTERY_SOC){
-  	
+
 	  if (data[0]<CUTOFF_SOC_LOW){ //low state of charge
 		  sendMessage(CUTOFF_SOC_LOW, data, datalen);//Send error message
 	  }
@@ -82,8 +82,9 @@ batteryNode::batteryNode() : TeensyNode(){
     }
   }
 }
+
 void batteryNode::interpretData(uint32_t messageID){
-  int index, datalen = 8;
+  int index, datalen = 4;
   int data[datalen];
   //CANMessage CANmsg;
 
@@ -153,7 +154,7 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
         dataAsDoubles[i] = static_cast<double>(data[i]);
       }
       this->cellFiltersTemperature[index].step(dataAsDoubles);
-	  
+
     }
     else{
       //TODO: Decide what to do for other IDs
@@ -165,36 +166,31 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
 }
 
 void batteryNode::updateStateCalculations(){
-	
-	
+
+
 	/*
-	
 	Calculate State Of Charge
-	
 	*/
-	
+
 	int sumOfCharge=0;
-	
-	//Go through kalman filters related to cell voltage and sum together all 
+
+	//Go through kalman filters related to cell voltage and sum together all
 	for (int i=0;i<CELL_FILTERS_LEN;i++){
-		
+
 		for (int j=0;j<4;j++){
-			
+
 			sumOfCharge+=cellFiltersVoltage[i].getX(j);
-			
+
 		}
 	}
 	this->stateOfCharge= 100*(sumOfCharge/(40*CUTOFF_VOLTAGE_HIGH)); //Charges divided by total amount possible
-	
+
 	int data[]= {this->stateOfCharge};
-	
+
 	checkForError(data, 1, BATTERY_SOC);
 	/*
-	
 	Calculate ESR
-	
 	*/
-	
-	
-}
 
+
+}

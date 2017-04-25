@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this code.  If not, see <http:#www.gnu.org/licenses/>.
  */
-
+#ifndef ARRAY_FILTER_H
+#define ARRAY_FILTER_H
 
 // These must be defined before including TinyEKF.h
 #define Nsta 7  
@@ -57,6 +58,8 @@ class ArrayFilter : public TinyEKF {
         }
 			
 };
+
+#endif
 
 
 
