@@ -75,7 +75,7 @@ void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
 }
 
 batteryNode::batteryNode() : TeensyNode(){
-  for(int i =0; i < CURRENT_DATA_ROWS; i++){
+	for(int i =0; i < CURRENT_DATA_ROWS; i++){
     for(int j = 0; j < CURRENT_DATA_COLUMNS; j++){
       this->currentData[i][j] = 0;
 
