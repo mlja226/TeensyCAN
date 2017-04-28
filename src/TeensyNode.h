@@ -9,16 +9,11 @@
 #define MAX_ERRORS 10
 
 class TeensyNode {
-
-public:
+private:
   FlexCAN CANBus;
-  TeensyNode(){
-    this->CANBus = FlexCAN();
-    //this->CANBus.begin();
-  }
-  TeensyNode(uint32_t baudrate){
-    this->CANBus = FlexCAN(baudrate);
-    //this->CANBus.begin();
+public:
+  TeensyNode(FlexCAN * bus){
+    this->CANBus = *bus;
   }
   int read(CANMessage &message){
     CAN_message_t msg;
