@@ -74,8 +74,8 @@ void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
 
 }
 
-batteryNode::batteryNode() : TeensyNode(){
-  for(int i =0; i < CURRENT_DATA_ROWS; i++){
+batteryNode::batteryNode(FlexCAN *bus) : TeensyNode(bus){
+	for(int i =0; i < CURRENT_DATA_ROWS; i++){
     for(int j = 0; j < CURRENT_DATA_COLUMNS; j++){
       this->currentData[i][j] = 0;
 
@@ -153,7 +153,7 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
         currentData[index][i] = data[i];
         dataAsDoubles[i] = static_cast<double>(data[i]);
       }
-      this->cellFiltersTemperature[index].step(dataAsDoubles);
+      this->cellFiltersTemperature[index-10].step(dataAsDoubles);
 
     }
     else{

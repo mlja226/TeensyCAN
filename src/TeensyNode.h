@@ -11,17 +11,14 @@
 class TeensyNode {
 private:
   FlexCAN CANBus;
-
 public:
-  TeensyNode(){
-    this->CANBus = FlexCAN();
-  }
-  TeensyNode(uint32_t baudrate){
-    this->CANBus = FlexCAN(baudrate);
+  TeensyNode(FlexCAN * bus){
+    this->CANBus = *bus;
   }
   int read(CANMessage &message){
     CAN_message_t msg;
     int result = this->CANBus.read(msg);
+    Serial.println(msg.id);
     message.translateFromFlexCAN(msg);
     return result;
   }
