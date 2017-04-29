@@ -25,6 +25,7 @@ void batteryNode::sendMessage(uint32_t writeMessageID, int data[], int datalen){
 //TODO
 void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
 
+	sendMessage(messageID,data,datalen);
   //BATTERY VOLTAGE ERROR CHECK
   if(messageID >= BATTERY_VOLTAGE_1 && messageID <= BATTERY_VOLTAGE_10){
     //iterate through data to check if there are any readings above/below cutoff
