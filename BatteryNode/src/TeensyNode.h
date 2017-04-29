@@ -10,27 +10,29 @@
 
 class TeensyNode {
 private:
-  FlexCAN *CANBus;
+  FlexCAN * CANBus;
 
 public:
-  TeensyNode(FlexCAN *bus){
-    this->CANBus = bus;
+  TeensyNode(FlexCAN &bus){
+    this->CANBus = &bus;
   }
   /*TeensyNode(uint32_t baudrate){
     this->CANBus = FlexCAN(baudrate);
   }
 */
-  int read(CANMessage * message){
+  int read(CANMessage &message){
     CAN_message_t msg;
-    //Serial.printf("Address in Read = %p", this->CANBus);
     int result = this->CANBus->read(msg);
-    message->translateFromFlexCAN(msg);
+    //Serial.printf("Address in Read = %x", msg.id);
+
+    message.translateFromFlexCAN(msg);
     return result;
   }
   int write(CANMessage message){
     CAN_message_t msg;
-    Serial.printf("Message in write %x \n",message.getMessageID());
+    Serial.printf("Message ID in write before translation %x \n",message.getMessageID());
     message.translateToFlexCAN(msg);
+    Serial.printf("Message ID in write after translation %x \n",msg.id);
     int result = this->CANBus->write(msg);
     return result;
   }

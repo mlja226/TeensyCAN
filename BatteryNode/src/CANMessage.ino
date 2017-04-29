@@ -25,7 +25,7 @@ CANMessage::CANMessage(uint32_t id, uint8_t buff[]){
 }
 
 void CANMessage::translateToFlexCAN(CAN_message_t &from){
-  memcpy(from.buf, this->message, sizeof(this->message));
+  memcpy(from.buf, this->message, sizeof(from.buf));
   from.id = this->messageID;
   from.len = 8;
   //TODO: Decide how to handle extended messageID's.
