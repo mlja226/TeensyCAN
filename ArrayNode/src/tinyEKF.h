@@ -16,24 +16,25 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this code.  If not, see <http:#www.gnu.org/licenses/>.
  */
+#ifndef TINYEKF_H
+#define TINYEKF_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "tiny_ekf_struct.h"
 
 // Support both Arduino and command-line versions
-
 #ifndef MAIN
 extern "C" {
 #endif
-     void ekf_init(void *, int, int);
-     int ekf_step(void *, double *);
+    void ekf_init(void *, int, int);
+    int ekf_step(void *, double *);
 #ifndef MAIN
 }
 #endif
 
 /**
- * A header-only class for the Extended Kalman Filter.  Your implementing class should #define the constant N and 
+ * A header-only class for the Extended Kalman Filter.  Your implementing class should #define the constant N and
  * and then #include <TinyEKF.h>  You will also need to implement a model() method for your application.
  */
 class TinyEKF {
@@ -52,9 +53,9 @@ class TinyEKF {
         /**
          * Initializes a TinyEKF object.
          */
-        TinyEKF() { 
-            ekf_init(&this->ekf, Nsta, Mobs); 
-            this->x = this->ekf.x; 
+        TinyEKF() {
+            ekf_init(&this->ekf, Nsta, Mobs);
+            this->x = this->ekf.x;
         }
 
         /**
@@ -77,9 +78,9 @@ class TinyEKF {
          * @param j column index
          * @param value value to set
          */
-        void setP(int i, int j, double value) 
-        { 
-            this->ekf.P[i][j] = value; 
+        void setP(int i, int j, double value)
+        {
+            this->ekf.P[i][j] = value;
         }
 
         /**
@@ -88,9 +89,9 @@ class TinyEKF {
          * @param j column index
          * @param value value to set
          */
-        void setQ(int i, int j, double value) 
-        { 
-            this->ekf.Q[i][j] = value; 
+        void setQ(int i, int j, double value)
+        {
+            this->ekf.Q[i][j] = value;
         }
 
         /**
@@ -99,9 +100,9 @@ class TinyEKF {
          * @param j column index
          * @param value value to set
          */
-        void setR(int i, int j, double value) 
-        { 
-            this->ekf.R[i][j] = value; 
+        void setR(int i, int j, double value)
+        {
+            this->ekf.R[i][j] = value;
         }
 
     public:
@@ -111,9 +112,9 @@ class TinyEKF {
          * @param i the index (at least 0 and less than <i>n</i>
          * @return state value at index
          */
-        double getX(int i) 
-        { 
-            return this->ekf.x[i]; 
+        double getX(int i)
+        {
+            return this->ekf.x[i];
         }
 
         /**
@@ -121,9 +122,9 @@ class TinyEKF {
          * @param i the index (at least 0 and less than <i>n</i>
          * @param value value to set
          */
-        void setX(int i, double value) 
-        { 
-            this->ekf.x[i] = value; 
+        void setX(int i, double value)
+        {
+            this->ekf.x[i] = value;
         }
 
         /**
@@ -131,10 +132,11 @@ class TinyEKF {
          * @param z observation vector, length <i>m</i>
          * @return true on success, false on failure caused by non-positive-definite matrix.
          */
-        bool step(double * z) 
-        { 
-            this->model(this->ekf.fx, this->ekf.F, this->ekf.hx, this->ekf.H); 
+        bool step(double * z)
+        {
+            this->model(this->ekf.fx, this->ekf.F, this->ekf.hx, this->ekf.H);
 
             return ekf_step(&this->ekf, z) ? false : true;
         }
 };
+#endif

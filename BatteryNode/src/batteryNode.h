@@ -16,18 +16,18 @@
 
 class batteryNode : public TeensyNode {
 private:
-TemperatureCellFilter cellFiltersVoltage[CELL_FILTERS_LEN]; //First 10 are the temperatures for cells 1-40
-VoltageCellFilter cellFiltersTemperature[CELL_FILTERS_LEN];
+VoltageCellFilter cellFiltersVoltage[CELL_FILTERS_LEN]; //First 10 are the temperatures for cells 1-40
+TemperatureCellFilter  cellFiltersTemperature[CELL_FILTERS_LEN];
 
 BatteryFilter currentFilter;
-int currentData[CURRENT_DATA_ROWS][CURRENT_DATA_COLUMNS];
+int currentData[CURRENT_DATA_ROWS+1][CURRENT_DATA_COLUMNS];
 
 int stateOfCharge, batteryESR;
 
 
 
 public:
-  batteryNode(FlexCAN *bus);
+  batteryNode(FlexCAN bus);
   void interpretData( uint32_t messageID);
 
   void kalmanStep(int data[], int id, int arrLen);

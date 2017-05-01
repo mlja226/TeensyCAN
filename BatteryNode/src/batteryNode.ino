@@ -12,7 +12,7 @@ void batteryNode::sendMessage(uint32_t writeMessageID, int data[], int datalen){
 
 	CANMessage CANmsg;
 	CANmsg.setMessageID(writeMessageID);
-	//Serial.printf("WRITE MESSAGE %x", writeMessageID);
+	Serial.printf("sendMessage: WRITE MESSAGE %x \n", writeMessageID);
     int start=0,end=16; //Fill CAN Message data
     for(int i = 0; i< datalen; i++){
         CANmsg.storeUnsignedInt(int64_t(data[i]),start, end);
@@ -22,22 +22,23 @@ void batteryNode::sendMessage(uint32_t writeMessageID, int data[], int datalen){
 	this->write(CANmsg);
 }
 
-//TODO
 void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
-
+	//Call to sendMessage to ensure that data reporting message (non-error message) is sent
+	sendMessage(messageID,data,datalen);
   //BATTERY VOLTAGE ERROR CHECK
   if(messageID >= BATTERY_VOLTAGE_1 && messageID <= BATTERY_VOLTAGE_10){
     //iterate through data to check if there are any readings above/below cutoff
     for(int i = 0; i < datalen; i++){
       if(data[i] >= CUTOFF_VOLTAGE_HIGH ){
 
-		  sendMessage(CUTOFF_VOLTAGE_HIGH,data, datalen);
-        //return CUTOFF_VOLTAGE_HIGH;
+			  sendMessage(BATTERY_ERROR_VOLTAGE_HIGH,data, datalen);
+	        //return CUTOFF_VOLTAGE_HIGH;
       }
       else if( data[i] <= CUTOFF_VOLTAGE_LOW){
-		  sendMessage(CUTOFF_VOLTAGE_LOW,data, datalen);
-        //return CUTOFF_VOLTAGE_LOW;
-
+				//TODO: Change message to contain id of cell with error, followed by error causing data
+				//There should be a message sent for each cell in error state.
+			  sendMessage(BATTERY_ERROR_VOLTAGE_LOW,data, datalen);
+	        //return CUTOFF_VOLTAGE_LOW;
       }
     }
   }
@@ -46,8 +47,8 @@ void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
     //iterate through data to check if there are any readings above/below cutoff
     for(int i = 0; i < datalen; i++){
       if(data[i] >= CUTOFF_TEMP_HIGH ){
-		sendMessage(CUTOFF_TEMP_HIGH,data, datalen);
-        //return CUTOFF_TEMP_HIGH;
+					sendMessage(BATTERY_ERROR_TEMPERATURE_HIGH, data, datalen);
+        	//return CUTOFF_TEMP_HIGH;
       }
     }
   }
@@ -68,46 +69,49 @@ void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
   else if (messageID==BATTERY_SOC){
 
 	  if (data[0]<CUTOFF_SOC_LOW){ //low state of charge
-		  sendMessage(CUTOFF_SOC_LOW, data, datalen);//Send error message
+		  sendMessage(BATTERY_WARNING_SOC_LOW, data, datalen);//Send error message
 	  }
   }
 
 }
 
-batteryNode::batteryNode(FlexCAN *bus) : TeensyNode(bus){
+batteryNode::batteryNode(FlexCAN bus) : TeensyNode(bus){
   for(int i =0; i < CURRENT_DATA_ROWS; i++){
     for(int j = 0; j < CURRENT_DATA_COLUMNS; j++){
       this->currentData[i][j] = 0;
-
     }
   }
+	for (int i=0;i<CELL_FILTERS_LEN;i++){
+
+		//this->cellFiltersTemperature[i]=new TemperatureCellFilter();
+		//this->cellFiltersVoltage[i]= new VoltageCellFilter();
+	}
 }
 void batteryNode::interpretData(uint32_t messageID){
-  int index, datalen = 8;
-  int data[datalen];
+  int index, datalen = 4;
+	int global_index = messageID - BATTERY_VOLTAGE_1;
   //CANMessage CANmsg;
 
   if(messageID == BATTERY_BC_AC_BP_AP){
-    for(int i =0; i<4; i++){
-      data[i] = static_cast<int>(currentFilter.getX(i));
-    }
+  for(int i =0; i<4; i++){
+	  currentData[global_index][i] = static_cast<int>(currentFilter.getX(i));
+  }
 
-	checkForError(data, datalen, BATTERY_BC_AC_BP_AP);
-    //CANmsg.setMessageID(errormsg);
+		checkForError(currentData[global_index], datalen, BATTERY_BC_AC_BP_AP);
   }
   else{
     //if it is a Voltage, set the correct index for the filter
     if(messageID >=BATTERY_VOLTAGE_1 && messageID <= BATTERY_VOLTAGE_10){
       index = messageID - BATTERY_VOLTAGE_1;
       for(int i =0; i<4; i++){
-        data[i] = static_cast<int>(this->cellFiltersVoltage[index].getX(i));
+      	currentData[global_index][i] = static_cast<int>(this->cellFiltersVoltage[index].getX(i));
       }
     }
       //if it is a Temperature, set the correct index for the filter
     else if(messageID >= BATTERY_TEMPERATURE_1 && messageID <= BATTERY_TEMPERATURE_10){
       index = messageID - BATTERY_TEMPERATURE_1;
       for(int i =0; i<4; i++){
-        data[i] = static_cast<int>(this->cellFiltersTemperature[index].getX(i));
+        currentData[global_index][i] = static_cast<int>(this->cellFiltersTemperature[index].getX(i));
       }
     }
     else{
@@ -116,7 +120,7 @@ void batteryNode::interpretData(uint32_t messageID){
     }
 
 
-   	checkForError(data, datalen, messageID);
+   	checkForError(currentData[global_index], datalen, messageID);
 
 
     }
@@ -125,11 +129,13 @@ void batteryNode::interpretData(uint32_t messageID){
 
 void batteryNode::kalmanStep(int data[], int id, int arrLen){
   int index;
+	int global_index = id - BATTERY_VOLTAGE_1;
   double dataAsDoubles[arrLen];
-	Serial.printf("KALMANAN STEP: ID= %x \n", id );
   if(id == BATTERY_BC_AC_BP_AP){
     for(int i = 0; i< 4; i++){
-      dataAsDoubles[i] = static_cast<double>(data[i]);
+			dataAsDoubles[i] = static_cast<double>(data[i]);
+			if(currentData[global_index][i] == 0)
+				this->currentFilter.setX(i, dataAsDoubles[i]);
     }
     this->currentFilter.step(dataAsDoubles);
   }
@@ -138,22 +144,27 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
       index = id - BATTERY_VOLTAGE_1;
       //Record the voltage values in the first 4 indices of currentData[index]
       for(int i = 0; i< 4; i++){
-        currentData[index][i] = data[i];
         dataAsDoubles[i] = static_cast<double>(data[i]);
+				if(currentData[global_index][i] == 0)
+					this->cellFiltersVoltage[index].setX(i, dataAsDoubles[i]);
       }
       this->cellFiltersVoltage[index].step(dataAsDoubles);
 
     }
 
-    else if(id >=BATTERY_TEMPERATURE_1 && id <= BATTERY_TEMPERATURE_10){
+    if(id >=BATTERY_TEMPERATURE_1 && id <= BATTERY_TEMPERATURE_10){
       index = id - BATTERY_TEMPERATURE_1+10;
       //Record the voltage values in the first 4 indices of currentData[index]
       for(int i =0; i< 4; i++){
-        currentData[index][i] = data[i];
-        dataAsDoubles[i] = static_cast<double>(data[i]);
+				Serial.printf("\n index: %d = %d", index,currentData[index][i] );
+        dataAsDoubles[i] = (data[i]);
+				if(currentData[global_index][i] == 0)
+					this->cellFiltersTemperature[index-10].setX(i, dataAsDoubles[i]);
+				Serial.printf("Data after cast %d \n", int(dataAsDoubles[i]));
       }
+			Serial.printf("Address of cellfilter %x\n", &(this->cellFiltersTemperature[index-10]));
       this->cellFiltersTemperature[index-10].step(dataAsDoubles);
-
+			Serial.printf("After Kalman Step: data[0]: %d data[1]: %d data[2]: %d data[3]: %d", (int)this->cellFiltersTemperature[index-10].getX(0),(int)this->cellFiltersTemperature[index-10].getX(1),(int)this->cellFiltersTemperature[index-10].getX(2),(int)this->cellFiltersTemperature[index-10].getX(3));
     }
     else{
       //TODO: Decide what to do for other IDs
@@ -165,35 +176,34 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
 }
 
 void batteryNode::updateStateCalculations(){
-
-
 	/*
-
 	Calculate State Of Charge
-
 	*/
 
-	int sumOfCharge=0;
+	double minCharge= CUTOFF_VOLTAGE_HIGH;
 
 	//Go through kalman filters related to cell voltage and sum together all
 	for (int i=0;i<CELL_FILTERS_LEN;i++){
 
 		for (int j=0;j<4;j++){
 
-			sumOfCharge+=cellFiltersVoltage[i].getX(j);
+			if (cellFiltersVoltage[i].getX(j)!=0 && cellFiltersVoltage[i].getX(j)< minCharge){
 
+					minCharge= cellFiltersVoltage[i].getX(j);
+			}
 		}
 	}
-	this->stateOfCharge= 100*(sumOfCharge/(40*CUTOFF_VOLTAGE_HIGH)); //Charges divided by total amount possible
+
+	this->stateOfCharge= (int)(100*(minCharge/(CUTOFF_VOLTAGE_HIGH))); //Charges divided by total amount possible
 
 	int data[]= {this->stateOfCharge};
 
 	checkForError(data, 1, BATTERY_SOC);
-	/*
+
 
 	Calculate ESR
 
-	*/
+
 
 
 }
