@@ -12,16 +12,19 @@ void motorNode::sendMessage(uint32_t writeMessageID, int data[], int datalen){
 	CANMessage CANmsg;
 	CANmsg.setMessageID(writeMessageID);
 
-    int start=0,end=16; //Fill CAN Message data
+    int start=0,end=MESSAGE_SIZE; //Fill CAN Message data
     for(int i = 0; i< datalen; i++){
         CANmsg.storeSignedInt(int64_t(data[i]),start, end);
-        start += 16;
-        end += 16;
+        start += MESSAGE_SIZE;
+        end += MESSAGE_SIZE;
 	}
 	this->write(CANmsg);
 }
 
 void motorNode::checkForError(int data[], int datalen, uint32_t messageID){
+
+	//Call to sendMessage to ensure that data reporting message (non-error message) is sent
+	sendMessage(messageID,data,datalen);
 
     switch(messageID){
 
@@ -64,7 +67,7 @@ void motorNode::checkForError(int data[], int datalen, uint32_t messageID){
 
 }
 
-motorNode::motorNode(FlexCAN *bus) : teensyNode(bus) {
+motorNode::motorNode(FlexCAN bus) : TeensyNode(bus) {
   for(int i =0; i < DATA_ENTRIES; i++){
 
 	  this->currentData[i]=0;
@@ -73,7 +76,7 @@ motorNode::motorNode(FlexCAN *bus) : teensyNode(bus) {
 }
 
 void motorNode::interpretData(uint32_t messageID){
-    int datalen = 8;
+    int datalen = MESSAGE_PIECES;
     int data[datalen];
     //CANMessage CANmsg;
 

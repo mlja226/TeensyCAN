@@ -200,10 +200,11 @@ void batteryNode::updateStateCalculations(){
 
 	checkForError(data, 1, BATTERY_SOC);
 
+	/*
 
 	Calculate ESR
 
 
-
+	*/
 
 }
