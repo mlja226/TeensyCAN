@@ -22,8 +22,6 @@ void loop() {
   while (thisNode.read(message)==0){
     delay(1000);
   }
-  Serial.printf("GOT A MESSAGE! ");
-  Serial.printf("Message ID: %x ",message.getMessageID());
 
   if (message.getMessageID()>=BATTERY_MESSAGE_RANGE_LOW && message.getMessageID()<=BATTERY_MESSAGE_RANGE_HI){
     // Read valid input

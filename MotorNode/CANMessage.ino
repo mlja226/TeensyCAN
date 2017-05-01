@@ -14,11 +14,7 @@ CANMessage::CANMessage(){
     this->message[i] = uint8_t(0);
   }
 }
-/*/Users/matthewjackson/Desktop/untitled folder/CANMessage.cpp:23:32: warning: sizeof on array function parameter will return size of 'uint8_t ' (aka 'unsigned char ') instead of 'uint8_t []' [-Wsizeof-array-argument]
-int messageSize = 8 > (sizeof(buff)/sizeof(buff)) ? 8 : sizeof(buff)/ sizeof(buff);
-CANMessage Constructor: Creates new CANMessage with given messageID and buffer
-buffer must be array of uint8_t of length 8 or information will be lost.
-*/
+
 CANMessage::CANMessage(uint32_t id, uint8_t buff[]){
   this->messageID = id;
   //Write 8 bytes
@@ -29,7 +25,7 @@ CANMessage::CANMessage(uint32_t id, uint8_t buff[]){
 }
 
 void CANMessage::translateToFlexCAN(CAN_message_t &from){
-  memcpy(from.buf, this->message, sizeof(this->message));
+  memcpy(from.buf, this->message, sizeof(from.buf));
   from.id = this->messageID;
   from.len = 8;
   //TODO: Decide how to handle extended messageID's.
@@ -75,6 +71,7 @@ uint64_t CANMessage::readUnsignedInt(uint8_t start, uint8_t end){
   while(i < bitLen){
     //Get the bit value at current position.
     currentBit = (this->message[currentBytePosition] & (0x1<<currentBitPosition)) > 0 ? 1: 0;
+
     //Set the appropriate bit in result to currentBit
     result |= currentBit<< i;
 
@@ -105,23 +102,29 @@ int64_t CANMessage::readSignedInt(uint8_t start, uint8_t end){
 int CANMessage::storeUnsignedInt(uint64_t num, uint8_t start, uint8_t end){
   int8_t bitLen = end - start;
   if(bitLen > 64 || bitLen <= 0 || start >= 64 || end > 64){
+
     return 0;
   }
   uint8_t currentBytePosition = start / 8;
   uint8_t currentBitPosition = start;
+  //cout<<"currentBytePosition: "<<int(currentBytePosition)<<endl;
   if(currentBytePosition !=0){
     currentBitPosition = uint8_t(start %(currentBytePosition * 8));
   }
 
+  //cout<<"currentBitPosition: "<<int(currentBitPosition)<<endl;
 
   uint8_t currentBit;
   uint8_t desiredBit;
   int i = 0;
   while(i < bitLen){
+    //cout<<"CURRENT BIT POSTION: "<<currentBitPosition<<endl<<"CURRENT BYTE POSTION: "<<currentBytePosition<<endl<<endl;
     //Get desired bit value for this position from num
     desiredBit = (num &(0x1<<i)) > 0 ? 1:0;
+    //cout<<"DESIRED BIT: "<<i<<" "<<desiredBit<<endl;
     //Get the bit value at current position of message.
     currentBit = (this->message[currentBytePosition] & (0x1<<currentBitPosition)) > 0 ? 1: 0;
+    //cout<<"CURRENT BIT: "<<i<<" "<<currentBit<<endl;
     //If the currentBit and desiredBit are different, flip the bit.
     //Otherwise, nothing needs to change at this position.
     if(currentBit != desiredBit){

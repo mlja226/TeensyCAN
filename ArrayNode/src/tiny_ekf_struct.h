@@ -1,9 +1,10 @@
 /*
- * TinyEKF: Extended Kalman Filter for embedded processors.
+ * tiny_ekf_struct.h: common data structure for TinyEKF
  *
- * tinyekf_config.h: static configuration parameters
+ * You should #include this file after using #define for N (states) and M
+*  (observations)
  *
- * Copyright (C) 2015 Simon D. Levy
+ * Copyright (C) 2016 Simon D. Levy
  *
  * This code is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -18,19 +19,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this code.  If not, see <http:#www.gnu.org/licenses/>.
  */
-
-/* states */
-#define Nsta 8
-
-/* observables */
-#define Mobs 4
-
+#ifndef TINY_EKF_STRUCT_H
+#define TINY_EKF_STRUCT_H
 typedef struct {
 
-    int n;           /* number of state values */
-    int m;           /* number of observables */
+    int n;          /* number of state values */
+    int m;          /* number of observables */
 
-    double x[Nsta];     /* state vector */
+    double x[Nsta];    /* state vector */
 
     double P[Nsta][Nsta];  /* prediction error covariance */
     double Q[Nsta][Nsta];  /* process noise covariance */
@@ -54,6 +50,8 @@ typedef struct {
     double tmp2[Mobs][Nsta];
     double tmp3[Mobs][Mobs];
     double tmp4[Mobs][Mobs];
-    double tmp5[Mobs]; 
+    double tmp5[Mobs];
 
 } ekf_t;
+
+#endif

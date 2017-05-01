@@ -22,7 +22,6 @@ void batteryNode::sendMessage(uint32_t writeMessageID, int data[], int datalen){
 	this->write(CANmsg);
 }
 
-//TODO
 void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
 	//Call to sendMessage to ensure that data reporting message (non-error message) is sent
 	sendMessage(messageID,data,datalen);
@@ -132,7 +131,6 @@ void batteryNode::kalmanStep(int data[], int id, int arrLen){
   int index;
 	int global_index = id - BATTERY_VOLTAGE_1;
   double dataAsDoubles[arrLen];
-	//Serial.printf("KALMANAN STEP: ID= %x \n", id );
   if(id == BATTERY_BC_AC_BP_AP){
     for(int i = 0; i< 4; i++){
 			dataAsDoubles[i] = static_cast<double>(data[i]);
@@ -181,7 +179,7 @@ void batteryNode::updateStateCalculations(){
 	/*
 	Calculate State Of Charge
 	*/
-/*
+
 	double minCharge= CUTOFF_VOLTAGE_HIGH;
 
 	//Go through kalman filters related to cell voltage and sum together all
@@ -205,7 +203,7 @@ void batteryNode::updateStateCalculations(){
 
 	Calculate ESR
 
-	*/
+
 
 
 }

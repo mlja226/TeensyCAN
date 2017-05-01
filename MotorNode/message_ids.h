@@ -112,24 +112,24 @@
 #define BATTERY_VOLTAGE_1 0x300 // ( volt 1 - 16bits )( volt 2 - 16bits )( volt 3 - 16bits )( volt 4 - 16bits )
 #define BATTERY_VOLTAGE_2 0x301 // ( volt 5 - 16bits )( volt 6 - 16bits )( volt 7 - 16bits )( volt 8 - 16bits )
 #define BATTERY_VOLTAGE_3 0x302 // ...
-#define BATTERY_VOLTAGE_4 0x304
-#define BATTERY_VOLTAGE_5 0x305
-#define BATTERY_VOLTAGE_6 0x306
-#define BATTERY_VOLTAGE_7 0x307
-#define BATTERY_VOLTAGE_8 0x308
-#define BATTERY_VOLTAGE_9 0x309
-#define BATTERY_VOLTAGE_10  0x30A
+#define BATTERY_VOLTAGE_4 0x303
+#define BATTERY_VOLTAGE_5 0x304
+#define BATTERY_VOLTAGE_6 0x305
+#define BATTERY_VOLTAGE_7 0x306
+#define BATTERY_VOLTAGE_8 0x307
+#define BATTERY_VOLTAGE_9 0x308
+#define BATTERY_VOLTAGE_10  0x309
 
-#define BATTERY_TEMPERATURE_1 0x30B // ( temp 1 - 16bits )( temp 2 - 16bits )( temp 3 - 16bits )( temp 4 - 16bits )
-#define BATTERY_TEMPERATURE_2 0x30C // ( temp 5 - 16bits )( temp 6 - 16bits )( temp 7 - 16bits )( temp 8 - 16bits )
-#define BATTERY_TEMPERATURE_3 0x30D // ...
-#define BATTERY_TEMPERATURE_4 0x30E
-#define BATTERY_TEMPERATURE_5 0x30F
-#define BATTERY_TEMPERATURE_6 0x310
-#define BATTERY_TEMPERATURE_7 0x311
-#define BATTERY_TEMPERATURE_8 0x312
-#define BATTERY_TEMPERATURE_9 0x313
-#define BATTERY_TEMPERATURE_10  0x314
+#define BATTERY_TEMPERATURE_1 0x30A // ( temp 1 - 16bits )( temp 2 - 16bits )( temp 3 - 16bits )( temp 4 - 16bits )
+#define BATTERY_TEMPERATURE_2 0x30B // ( temp 5 - 16bits )( temp 6 - 16bits )( temp 7 - 16bits )( temp 8 - 16bits )
+#define BATTERY_TEMPERATURE_3 0x30C // ...
+#define BATTERY_TEMPERATURE_4 0x30D
+#define BATTERY_TEMPERATURE_5 0x30E
+#define BATTERY_TEMPERATURE_6 0x30F
+#define BATTERY_TEMPERATURE_7 0x310
+#define BATTERY_TEMPERATURE_8 0x311
+#define BATTERY_TEMPERATURE_9 0x312
+#define BATTERY_TEMPERATURE_10  0x313
 
 #define BATTERY_BC_AC_BP_AP 0x315 // ( Battery Current 16bits )( Array Current 16bits )( Battery Power 16bits )( Array Power 16bits )
 
@@ -149,7 +149,15 @@
 #define BATTERY_ESR_5 0x31F
 
 #define BATTERY_SOC 0x320
+#define BATTERY_WARNING_VOLTAGE_HIGH 0x321
+#define BATTERY_ERROR_VOLTAGE_HIGH 0x322
+#define BATTERY_WARNING_VOLTAGE_LOW 0x323
+#define BATTERY_ERROR_VOLTAGE_LOW 0x324
 
+#define BATTERY_WARNING_TEMPERATURE_HIGH 0x325
+#define BATTERY_ERROR_TEMPERATURE_HIGH 0x326
+
+#define BATTERY_WARNING_SOC_LOW 0x327
 /**
  * Motor Controller
  *

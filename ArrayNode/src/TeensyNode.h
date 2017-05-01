@@ -10,10 +10,10 @@
 
 class TeensyNode {
 private:
-  FlexCAN CANBus;
+  FlexCAN * CANBus;
 public:
-  TeensyNode(FlexCAN * bus){
-    this->CANBus = *bus;
+  TeensyNode(FlexCAN  &bus){
+    this->CANBus = &bus;
   }
   int read(CANMessage &message){
     CAN_message_t msg;

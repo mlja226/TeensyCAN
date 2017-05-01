@@ -279,7 +279,7 @@ static void unpack(void * v, ekf_t * ekf, int n, int m)
     ekf->tmp5 = dptr;
   }
 
-void ekf_init(void * v, int n, int m)
+ void ekf_init(void * v, int n, int m)
 {
     /* retrieve n, m and set them in incoming data structure */
     int * ptr = (int *)v;

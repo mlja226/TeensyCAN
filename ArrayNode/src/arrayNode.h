@@ -15,16 +15,16 @@ private:
 
 	ArrayFilter arrayEKF;
 	int currentData[DATA_ENTRIES];
-	
+
 public:
-  arrayNode();
-  
+  arrayNode(FlexCAN bus);
+
   void interpretData( uint32_t messageID);
 
   void kalmanStep(int data[], int id, int arrLen);
   void  checkForError(int data[], int datalen, uint32_t messageID);
   void sendMessage(uint32_t writeMessageID, int data[], int datalen);
-  
+
   void updateStateCalculations();
 
 
