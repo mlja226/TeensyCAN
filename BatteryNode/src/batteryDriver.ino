@@ -7,6 +7,7 @@
 #include "batteryNode.h"
 #include "message_ids.h"
 
+
 CANMessage message = CANMessage();
 FlexCAN bus = FlexCAN(500000);
 batteryNode thisNode =  batteryNode(bus);
@@ -32,7 +33,7 @@ void loop() {
 
       data[i]= message.readSignedInt(i*16,(i+1)*16);
       //Serial.printf("Data[%d] = %u",i, data[i]);
-      }
+     }
       //Serial.printf("Message id = %x \n", message.getMessageID());
       //Kalman Filter black magic
       thisNode.kalmanStep(data,message.getMessageID(),4);
@@ -51,6 +52,5 @@ void loop() {
       // Check computed state for errors
       thisNode.updateStateCalculations();
 
-      // TODO Check against set break points
     }
 }

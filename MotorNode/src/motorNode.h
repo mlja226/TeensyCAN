@@ -17,7 +17,7 @@ private:
 	int currentData[DATA_ENTRIES];
 
 public:
-  motorNode(FlexCAN *bus);
+  motorNode(FlexCAN bus);
 
   void interpretData( uint32_t messageID);
 
