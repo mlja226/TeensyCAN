@@ -38,12 +38,19 @@ sudo python3 can_test.py /dev/ttyUSB0 ./data/battery_voltage_high_1.in 0.1
 ## Test Cases
 
 ### Battery
-- [ ] Battery Voltage - High
-- [ ] Battery Voltage - Low
-- [ ] Battery Temperature - High
-- [ ] Battery Temperature - Low
-- [ ] Battery Current - High
-- [ ] Battery Current - Low
+- [x] Normal
+- [x] Voltage - Warning High
+- [x] Voltage - Error High
+- [x] Voltage - Warning Low
+- [x] Voltage - Error Low
+- [x] Charge Temperature - Warning High
+- [x] Charge Temperature - Error High
+- [x] Discharge Temperature - Warning High
+- [x] Discharge Temperature - Error High
+- [x] Current - Error High
 
 ### Motor
-- [ ]
+- [ ] Normal
+
+### Array
+- [ ] Normal

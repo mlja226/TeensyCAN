@@ -1,8 +1,13 @@
 #!/bin/python3
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Action
 from core.ThreadedSerialIO import ThreadedSerialIO
 import time
+
+class EmptyIsTrue(Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        values = True
+        setattr(namespace, self.dest, values)
 
 def printCanMessage( can_message ):
     offset = 5 if can_message[0] == 'T' else 0
@@ -13,8 +18,10 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('serial_port', help='The port you wish to write/read over.')
     parser.add_argument('test_file', help='File containing the test CAN data.')
-    parser.add_argument('delay', help='Number of milliseconds between CAN messages.')
+    parser.add_argument('delay', type=float, help='Number of milliseconds between CAN messages.')
+    parser.add_argument('-q', '--quiet', nargs=0, type=bool, default=False, action=EmptyIsTrue, help='Disable test data from being printed.' )
     args = parser.parse_args()
+    print(args)
 
     # Open the specified serial port
     port = ThreadedSerialIO( args.serial_port, 115200, 26, True, "", True )
@@ -30,18 +37,19 @@ def main():
             # Write over serial
             port.writeOverSerial( o_data_parts[0]+"\r" )
 
-            # Print out message info
-            print( "Out Message..." )
-            printCanMessage( o_data_parts[0] )
-
-            # Print out the message parts
-            print( "Message Parts..." )
-            for i in range(1, len(o_data_parts)):
-                print( "\t"+o_data_parts[i] )
+            if args.quiet:
+                # Print out message info
+                print( "Out Message..." )
+                printCanMessage( o_data_parts[0] )
+                # Print out the message parts
+                print( "Message Parts..." )
+                for i in range(1, len(o_data_parts)):
+                    print( "\t"+o_data_parts[i] )
 
             # Print in message info
             i_data = port.getData()
-            print( "In Data..." )
+            if args.quiet:
+                print( "In Data..." )
             for output_line in i_data.split("\n"):
                 if len(output_line) == 0:
                     continue
@@ -51,11 +59,12 @@ def main():
                     print( "\t"+output_line )
 
             # Deliniate between messages
-            print()
-            print( '-'*80 )
+            if args.quiet:
+                print()
+                print( '-'*80 )
 
             # Sleep between messages
-            time.sleep( float(args.delay) )
+            time.sleep( args.delay )
 
     print("Finished running test.")
     port.stop()

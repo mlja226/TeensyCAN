@@ -38,9 +38,9 @@
 //#define	CUTOFF_VOLTAGE_LOW	0
 //#define	CUTOFF_VOLTAGE_HIGH	50000
 
-//battery current cutoff points (in milli-Amps)
-#define	CUTOFF_CURRENT_HIGH	 80000
-#define	CUTOFF_CURRENT_LOW	(-40000)
+//battery current cutoff points (in tens milli-Amps)
+#define	CUTOFF_CURRENT_HIGH	 8000
+#define	CUTOFF_CURRENT_LOW	(-4000)
 
 //battery temperature cutoff point (in Celcius)
 #define CUTOFF_TEMP_HIGH	        45

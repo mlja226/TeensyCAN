@@ -50,7 +50,7 @@ BATTERY_TEMPERATURE_10 ="313"
 CUTOFF_TEMP_HIGH = 45
 
 
-BATTERY_BC_AC_BP_AP = "315" # ( Battery Current 16bits )( Array Current 16bits )( Battery Power 16bits )( Array Power 16bits )
+BATTERY_BC_AC_BP_AP = "314" # ( Battery Current 16bits )( Array Current 16bits )( Battery Power 16bits )( Array Power 16bits )
 
 BATTERY_CBS_1 = "316" #( CBS State 2bits x 20 )( Padding 24bits )
 BATTERY_CBS_2 = "317" # ...
@@ -87,6 +87,22 @@ def generate_voltage_message(voltageID, currentVoltage):
 	message = "T00000"+voltageID+"8"+struct.pack('<I',voltageMessage1).encode('hex')+struct.pack('<I',voltageMessage2).encode('hex')+ " "+ str(voltage1)+ " "+ str(voltage2) + " "+ str(voltage3) + " "+ str(voltage4) +"\r"
 	return str(message)
 
+def generate_current_message(voltageID, battery_current, array_current, battery_power, array_power):
+    random_const = random.randrange(0, 100)
+    message_part_1 = 0x00000000
+    message_part_2 = 0x00000000
+    #Get voltages within constant of each other
+    bat_current = (random.randrange(battery_current-random_const-1, battery_current+random_const))
+    arr_current = (random.randrange(array_current-random_const-1, array_current+random_const))
+    bat_power = (random.randrange(battery_power-random_const-1, battery_power+random_const))
+    arr_power = (random.randrange(array_power-random_const-1, array_power+random_const))
+    message_part_1 = message_part_1 | bat_current << 16
+    message_part_1 = message_part_1 | arr_current
+    message_part_2 = message_part_2 | bat_power << 16
+    message_part_2 = message_part_2 | arr_power
+    message = "T00000"+voltageID+"8"+struct.pack('<I',message_part_1).encode('hex')+struct.pack('<I',message_part_2).encode('hex')+ " "+ str(bat_current)+ " "+ str(arr_current) + " "+ str(bat_power) + " "+ str(arr_power) +"\r"
+    return str(message)
+
 def generate_temperature_message(tempID, currentTemp):
 	tempMessage1 = 0x00000000
 	tempMessage2 = 0x00000000
@@ -100,34 +116,48 @@ def generate_temperature_message(tempID, currentTemp):
 	tempMessage2 = tempMessage2 | temp4
 	message = "T00000"+tempID +"8"+struct.pack('<I',tempMessage1).encode('hex')+struct.pack('<I',tempMessage2).encode('hex') + " "+str(temp1)+ " "+ str(temp2) + " "+ str(temp3) + " "+ str(temp4)+"\r"
 	return message
+
 def make_array_file(array_file):
         for i in range(0,10):
                 array_file.write("T00000")
 
-def make_battery_file( battery_file ):
-	voltageIDs = [BATTERY_VOLTAGE_1,BATTERY_VOLTAGE_2, BATTERY_VOLTAGE_3, BATTERY_VOLTAGE_4, BATTERY_VOLTAGE_5, BATTERY_VOLTAGE_6, BATTERY_VOLTAGE_7, BATTERY_VOLTAGE_8, BATTERY_VOLTAGE_9, BATTERY_VOLTAGE_10]
-	tempIDs = [BATTERY_TEMPERATURE_1,BATTERY_TEMPERATURE_2,BATTERY_TEMPERATURE_3,BATTERY_TEMPERATURE_4,BATTERY_TEMPERATURE_5,BATTERY_TEMPERATURE_6,BATTERY_TEMPERATURE_7,BATTERY_TEMPERATURE_8,BATTERY_TEMPERATURE_9,BATTERY_TEMPERATURE_10]
+def make_battery_file( battery_file, num_cases, curr_volt, delta_volt, curr_temp, delta_temp, curr_current, delta_current, curr_power, delta_power ):
+    voltageIDs = [BATTERY_VOLTAGE_1,BATTERY_VOLTAGE_2, BATTERY_VOLTAGE_3, BATTERY_VOLTAGE_4, BATTERY_VOLTAGE_5, BATTERY_VOLTAGE_6, BATTERY_VOLTAGE_7, BATTERY_VOLTAGE_8, BATTERY_VOLTAGE_9, BATTERY_VOLTAGE_10]
+    tempIDs = [BATTERY_TEMPERATURE_1,BATTERY_TEMPERATURE_2,BATTERY_TEMPERATURE_3,BATTERY_TEMPERATURE_4,BATTERY_TEMPERATURE_5,BATTERY_TEMPERATURE_6,BATTERY_TEMPERATURE_7,BATTERY_TEMPERATURE_8,BATTERY_TEMPERATURE_9,BATTERY_TEMPERATURE_10]
+    currentID = [BATTERY_BC_AC_BP_AP]
 
-	#Assuming voltage begins slightly below max cutoff
-	currVoltage = 30000.0
-	#Voltage will decrease linearly
-	#Start battery temperature at roughly 70 deg F
+    #Create messages for each Voltage and temperature
+    for i in range(0, num_cases):
+        current_message = generate_current_message(currentID[0], curr_current, curr_current, curr_power, curr_power);
+        curr_power += delta_power
+        curr_current += delta_current
+        battery_file.write(current_message)
+        for x in range(0, len(voltageIDs)):
+            curr_temp += delta_temp
+            curr_volt += delta_volt
+            voltageMessage = generate_voltage_message(voltageIDs[x], int(curr_volt))
+            tempMessage = generate_temperature_message(tempIDs[x], int(curr_temp))
+            battery_file.write(voltageMessage)
+            battery_file.write(tempMessage)
+    battery_file.flush()
 
-	currTemp = 21.0
-	tempIncrease = 0.001
-	#Temperature should increase linearly
+with open("data/battery/normal1.in","w") as curr_file:
+    make_battery_file( curr_file, 50, 30000, 0.01, 30, 0.001, 100, 0, 100, 0 )
 
-	#Create messages for each Voltage and temperature
-	for i in range(0, 10):
-		currTemp += tempIncrease
-		for x in range(0,len(voltageIDs)):
-			currVoltage = currVoltage - 1
-			voltageMessage = generate_voltage_message(voltageIDs[x], int(currVoltage))
-			tempMessage = generate_temperature_message(tempIDs[x], int(currTemp))
-			battery_file.write(voltageMessage)
-			battery_file.write(tempMessage)
-			#TODO: Determine what readings for ESR should be.
-	battery_file.flush()
+with open("data/battery/voltage_low1.in","w") as curr_file:
+    make_battery_file( curr_file, 50, 28000, -10, 30, 0.001, 100, 0, 100, 0 )
 
-battery_file = open("battery_data.txt","w")
-make_battery_file(battery_file)
+with open("data/battery/voltage_high1.in","w") as curr_file:
+    make_battery_file( curr_file, 50, 34000, 10, 30, 0.001, 100, 0, 100, 0 )
+
+with open("data/battery/temp_high_charge1.in","w") as curr_file:
+    make_battery_file( curr_file, 50, 34000, 0, 40, 0.1, 100, 0, 100, 0 )
+
+with open("data/battery/temp_high_discharge1.in","w") as curr_file:
+    make_battery_file( curr_file, 50, 34000, 0, 55, 0.1, 100, 0, 100, 0 )
+
+with open("data/battery/current_high1.in","w") as curr_file:
+    make_battery_file( curr_file, 50, 30000, 0, 30, 0.001, 7800, 20, 3500, 0 )
+
+# with open("data/battery/current_low1.in","w") as curr_file:
+#     make_battery_file( curr_file, 50, 30000, 0, 30, 0.001, 0, -3000, 35000, 0 )
