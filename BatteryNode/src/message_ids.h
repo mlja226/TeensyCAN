@@ -35,16 +35,21 @@
 //battery voltage cutoff points (in Volts * 10000)
 #define	CUTOFF_VOLTAGE_HIGH	36490
 #define	CUTOFF_VOLTAGE_LOW	26510
-//#define	CUTOFF_VOLTAGE_LOW	0
-//#define	CUTOFF_VOLTAGE_HIGH	50000
+#define	CUTOFF_VOLTAGE_WARNING_LOW	27000
+#define	CUTOFF_VOLTAGE_WARNING_HIGH	36400
 
-//battery current cutoff points (in tens milli-Amps)
+//battery current cutoff points (in tens of milli-Amps)
 #define	CUTOFF_CURRENT_HIGH	 8000
 #define	CUTOFF_CURRENT_LOW	(-4000)
+
+#define CUTOFF_ARRAY_CURRENT_HIGH 45000
 
 //battery temperature cutoff point (in Celcius)
 #define CUTOFF_TEMP_HIGH	        45
 #define CUTOFF_TEMP_HIGH_DISCHARGE	60
+
+#define CUTOFF_TEMP_HIGH_WARNING 40
+#define CUTOFF_TEMP_HIGH_DISCHARGE_WARNING 55
 
 #define CUTOFF_SOC_LOW              10 //TODO Make sure this number works
 
@@ -158,6 +163,15 @@
 #define BATTERY_ERROR_TEMPERATURE_HIGH 0x326
 
 #define BATTERY_WARNING_SOC_LOW 0x327
+
+#define BATTERY_TEMP_DISCHARGE_WARNING 0x328
+#define BATTERY_TEMP_DISCHARGE_ERROR 0x329
+#define BATTERY_TEMP_CHARGE_WARNING 0x32A
+#define BATTERY_TEMP_CHARGE_ERROR 0x32B
+
+#define BATTERY_ARRAY_CURRENT_ERROR_LOW 0x32C
+#define BATTERY_ARRAY_CURRENT_ERROR_HIGH 0x32D
+
 /**
  * Motor Controller
  *
@@ -166,8 +180,8 @@
  *
  * 0x400 - 0x4FF
  */
- #define MOTOR_MESSAGE_RANGE_LOW 0x400
- #define MOTOR_MESSAGE_RANGE_HI 0x4FF
+#define MOTOR_MESSAGE_RANGE_LOW 0x400
+#define MOTOR_MESSAGE_RANGE_HI 0x4FF
 #define MOTOR_IDENTIFICATION_INFORMATION 0x400
 
 #define MOTOR_STATUS_INFORMATION 0x401
