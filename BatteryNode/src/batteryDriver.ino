@@ -20,7 +20,6 @@ void loop() {
   bool state_change = false;
   // If RX buffer is not empty
   while (thisNode.read(message)==0){
-    delay(1000);
   }
 
   if (message.getMessageID()>=BATTERY_MESSAGE_RANGE_LOW && message.getMessageID()<=BATTERY_MESSAGE_RANGE_HI){

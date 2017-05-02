@@ -131,7 +131,7 @@
 #define BATTERY_TEMPERATURE_9 0x312
 #define BATTERY_TEMPERATURE_10  0x313
 
-#define BATTERY_BC_AC_BP_AP 0x315 // ( Battery Current 16bits )( Array Current 16bits )( Battery Power 16bits )( Array Power 16bits )
+#define BATTERY_BC_AC_BP_AP 0x314 // ( Battery Current 16bits )( Array Current 16bits )( Battery Power 16bits )( Array Power 16bits )
 
 #define BATTERY_CBS_1 0x316 // ( CBS State 2bits x 20 )( Padding 24bits )
 #define BATTERY_CBS_2 0x317 // ...

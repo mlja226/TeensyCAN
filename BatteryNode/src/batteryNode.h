@@ -10,7 +10,7 @@
 #include "VoltageCellFilter.h"
 #include "TemperatureCellFilter.h"
 
-#define CURRENT_DATA_ROWS 20
+#define CURRENT_DATA_ROWS 21
 #define CURRENT_DATA_COLUMNS 4
 #define CELL_FILTERS_LEN 10
 
@@ -20,7 +20,7 @@ VoltageCellFilter cellFiltersVoltage[CELL_FILTERS_LEN]; //First 10 are the tempe
 TemperatureCellFilter  cellFiltersTemperature[CELL_FILTERS_LEN];
 
 BatteryFilter currentFilter;
-int currentData[CURRENT_DATA_ROWS+1][CURRENT_DATA_COLUMNS];
+int currentData[CURRENT_DATA_ROWS][CURRENT_DATA_COLUMNS];
 
 int stateOfCharge, batteryESR;
 

@@ -24,21 +24,21 @@ void batteryNode::sendMessage(uint32_t writeMessageID, int data[], int datalen){
 
 void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
 	//Call to sendMessage to ensure that data reporting message (non-error message) is sent
-	sendMessage(messageID,data,datalen);
+	//sendMessage(messageID,data,datalen);
   //BATTERY VOLTAGE ERROR CHECK
+	int errMsg[4] = {0,0,0,0};
   if(messageID >= BATTERY_VOLTAGE_1 && messageID <= BATTERY_VOLTAGE_10){
     //iterate through data to check if there are any readings above/below cutoff
     for(int i = 0; i < datalen; i++){
       if(data[i] >= CUTOFF_VOLTAGE_HIGH ){
-
-			  sendMessage(BATTERY_ERROR_VOLTAGE_HIGH,data, datalen);
-	        //return CUTOFF_VOLTAGE_HIGH;
+				errMsg[0] = data[i];
+				errMsg[1] = (messageID - BATTERY_VOLTAGE_1)*4 +i;
+			  sendMessage(BATTERY_ERROR_VOLTAGE_HIGH,errMsg, datalen);
       }
       else if( data[i] <= CUTOFF_VOLTAGE_LOW){
 				//TODO: Change message to contain id of cell with error, followed by error causing data
 				//There should be a message sent for each cell in error state.
-			  sendMessage(BATTERY_ERROR_VOLTAGE_LOW,data, datalen);
-	        //return CUTOFF_VOLTAGE_LOW;
+			  sendMessage(BATTERY_ERROR_VOLTAGE_LOW,errMsg, datalen);
       }
     }
   }
@@ -47,8 +47,9 @@ void batteryNode::checkForError(int data[], int datalen, uint32_t messageID){
     //iterate through data to check if there are any readings above/below cutoff
     for(int i = 0; i < datalen; i++){
       if(data[i] >= CUTOFF_TEMP_HIGH ){
-					sendMessage(BATTERY_ERROR_TEMPERATURE_HIGH, data, datalen);
-        	//return CUTOFF_TEMP_HIGH;
+				errMsg[0] = data[i];
+				errMsg[1] = (messageID - BATTERY_TEMPERATURE_1)*4 +i;
+				sendMessage(BATTERY_ERROR_TEMPERATURE_HIGH, data, datalen);
       }
     }
   }
@@ -199,11 +200,5 @@ void batteryNode::updateStateCalculations(){
 	int data[]= {this->stateOfCharge};
 
 	checkForError(data, 1, BATTERY_SOC);
-
-
-	Calculate ESR
-
-
-
 
 }
