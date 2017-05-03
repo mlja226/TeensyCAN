@@ -7,33 +7,36 @@
 #include "CANMessage.h"
 
 #define MAX_ERRORS 10
-
+/*TeensyNode: This class is meant to act as a parent class for current Teensy nodes
+* and a template for future node development. This class handles the basics of CANBus operations.
+*/
 class TeensyNode {
 private:
+  //The bus we will be reading/writing from/to
   FlexCAN * CANBus;
-
 public:
+  //TeensyNode Constructor: Takes a FlexCAN CANBus that is initialized and .start()-ed.
+  //Start/stopping the bus should be handled outside this class.
   TeensyNode(FlexCAN &bus){
     this->CANBus = &bus;
   }
-  /*TeensyNode(uint32_t baudrate){
-    this->CANBus = FlexCAN(baudrate);
-  }
-*/
+  //Read from the CANBus
+  //A filter may be added in child classes to only read certain messages
   int read(CANMessage &message){
     CAN_message_t msg;
     int result = this->CANBus->read(msg);
-    //Serial.printf("Address in Read = %x", msg.id);
-
+    //Translate to FlexCAN for reading
     message.translateFromFlexCAN(msg);
+    // Return the outcome of the read ( 1= Success. 0= Failure)
     return result;
   }
+  //Write to CANBus
   int write(CANMessage message){
     CAN_message_t msg;
-    Serial.printf("Message ID in write before translation %x \n",message.getMessageID());
+    //Translate to FlexCAN for writing
     message.translateToFlexCAN(msg);
-    Serial.printf("Message ID in write after translation %x \n",msg.id);
     int result = this->CANBus->write(msg);
+    // Return the outcome of the write ( 1= Success. 0= Failure)
     return result;
   }
 
